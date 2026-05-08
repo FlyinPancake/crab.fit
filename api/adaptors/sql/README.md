@@ -11,3 +11,9 @@ Example:
 ```env
 DATABASE_URL="postgresql://username:password@localhost:5432/crabfit"
 ```
+
+## Usage
+
+Run `mise migrate` to apply database migrations.
+
+Run `mise generate-entities` to generate entity definitions from the database schema.

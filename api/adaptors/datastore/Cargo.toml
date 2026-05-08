@@ -4,11 +4,14 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-async-trait = "0.1.68"
-chrono = "0.4.24"
+async-trait = "0.1.89"
+chrono = "0.4.44"
 common = { path = "../../common" }
 # Uses custom version of google-cloud that has support for NULL values
-google-cloud = { git = "https://github.com/GRA0007/google-cloud-rs.git", features = ["datastore", "derive"] }
-serde = "1.0.163"
-serde_json = "1.0.96"
-tokio = { version = "1.28.1", features = ["rt-multi-thread"] }
+google-cloud = { git = "https://github.com/GRA0007/google-cloud-rs.git", features = [
+  "datastore",
+  "derive"
+] }
+serde = "1.0.228"
+serde_json = "1.0.149"
+tokio = { version = "1.52.3", features = ["rt-multi-thread"] }
