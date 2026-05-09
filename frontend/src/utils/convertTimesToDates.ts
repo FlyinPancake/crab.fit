@@ -54,7 +54,7 @@ const parseWeekdayDate = (str: string, timezone: string): Temporal.ZonedDateTime
   // TODO: change data representation instead
   const dayInTz = resultDate.withTimeZone(timezone)
   const todayInTz = today.withTimeZone(timezone)
-  if (dayInTz.weekOfYear > todayInTz.weekOfYear) {
+  if (dayInTz.weekOfYear && todayInTz.weekOfYear && dayInTz.weekOfYear > todayInTz.weekOfYear) {
     resultDate = resultDate.subtract({ days: 7 })
   }
 

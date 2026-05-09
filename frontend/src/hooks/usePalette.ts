@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { color } from 'chroma.ts'
-import { createPalette } from 'hue-map'
+import { createPalette, type ColorMapInput } from 'hue-map'
 
 import { useStore } from '/src/stores'
 import useSettingsStore from '/src/stores/settingsStore'
@@ -10,7 +10,7 @@ export const usePalette = (steps: number) => {
 
   return useMemo(() =>
     createPalette({
-      map: (colormap === undefined || colormap === 'crabfit') ? [[0, [247, 158, 0, 0]], [1, [247, 158, 0, 255]]] : colormap,
+      map: ((colormap === undefined || colormap === 'crabfit') ? [[0, [247, 158, 0, 0]], [1, [247, 158, 0, 255]]] : colormap) as ColorMapInput,
       steps,
     })
       .format('rgba')

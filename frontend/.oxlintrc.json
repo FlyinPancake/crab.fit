@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["nextjs", "react", "typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "off"
+  },
+  "rules": {
+    "eqeqeq": "error",
+    "nextjs/no-img-element": "off",
+    "no-var": "error",
+    "prefer-const": "warn",
+    "react/display-name": "off",
+    "react/exhaustive-deps": "off",
+    "react/no-unescaped-entities": "off",
+    "react/rules-of-hooks": "off",
+    "typescript/return-await": "warn"
+  },
+  "env": {
+    "builtin": true
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  }
+}

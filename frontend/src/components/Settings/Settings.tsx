@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { isKeyOfObject } from '@giraugh/tools'
 import { maps } from 'hue-map'
-import { MapKey } from 'hue-map/dist/maps'
+
+type MapKey = keyof typeof maps
 import { Settings as SettingsIcon } from 'lucide-react'
 
 import SelectField from '/src/components/SelectField/SelectField'

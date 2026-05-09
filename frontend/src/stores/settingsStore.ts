@@ -1,6 +1,8 @@
-import { MapKey } from 'hue-map/dist/maps'
+import { maps } from 'hue-map'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
+type MapKey = keyof typeof maps
 
 type TimeFormat = '12h' | '24h'
 type Theme = 'System' | 'Light' | 'Dark'
