@@ -20,12 +20,12 @@ Note: if you'd like to get Crab Fit running because you want to have your own in
 
 Crab Fit is written using Rust (for the API) and Next.js (for the frontend). Before you begin, you'll need to make sure you have the required software installed:
 
-| Software | Installation instructions |
-| --- | --- |
-| git | You'll need git to clone the repository. You likely already have it if you're on MacOS, otherwise see the [git site](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). |
-| node | I recommend using `nvm` or `fnm` to manage multiple node versions, but you can also install directly from the [node.js website](https://nodejs.org/en/download). |
-| yarn | Node comes with `npm`, which you can use to run `npm install --global yarn` to install yarn. |
-| rust | You can install rust by following the directions on the [rust website](https://www.rust-lang.org/tools/install). |
+| Software | Installation instructions                                                                                                                                                            |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| git      | You'll need git to clone the repository. You likely already have it if you're on MacOS, otherwise see the [git site](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git). |
+| node     | I recommend using `nvm` or `fnm` to manage multiple node versions, but you can also install directly from the [node.js website](https://nodejs.org/en/download).                     |
+| yarn     | Node comes with `npm`, which you can use to run `npm install --global yarn` to install yarn.                                                                                         |
+| rust     | You can install rust by following the directions on the [rust website](https://www.rust-lang.org/tools/install).                                                                     |
 
 ### Setup
 
@@ -50,6 +50,7 @@ Note that you can't just visit the url directly, as it will redirect to the full
 Before starting a pull request, first check if there's an issue open that your pull request will resolve. If there isn't, please create one to give the community a chance to comment, and also to prevent others from working on similar pull requests that will conflict with yours.
 
 Mention the issue you are closing at the top of your PR like so:
+
 ```
 Closes #123
 

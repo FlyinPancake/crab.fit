@@ -1,4 +1,18 @@
 services:
+  aio:
+    profiles:
+      - aio
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        ADAPTOR: sql-adaptor
+    ports:
+      - "8080:8080"
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "sqlite::memory:"
+      FRONTEND_URL: "http://localhost:8080"
   api:
     profiles:
       - app

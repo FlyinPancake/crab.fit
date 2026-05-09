@@ -1,0 +1,2 @@
+#!/command/with-contenv sh
+exec /usr/local/bin/crabfit-api >/proc/1/fd/1 2>/proc/1/fd/2

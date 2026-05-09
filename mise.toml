@@ -11,3 +11,13 @@ dir = "{{ config_root }}/api/adaptors/sql"
 alias = "m"
 run = "sea migrate"
 dir = "{{ config_root }}/api/adaptors/sql"
+
+[tasks.run-api]
+alias = "ra"
+run = "cargo run"
+dir = "{{ config_root }}/api"
+
+[tasks.dev-api]
+alias = "da"
+run = "mise watch -fr run-api"
+dir = "{{ config_root }}/api"

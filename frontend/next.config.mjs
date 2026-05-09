@@ -1,14 +1,14 @@
 // @ts-check
 
-import { dirname, resolve } from "path"
-import { fileURLToPath } from "url"
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  webpack: config => {
+  webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
       // "@js-temporal/polyfill": path.resolve(
@@ -16,9 +16,15 @@ const nextConfig = {
       //   "node_modules/@js-temporal/polyfill/dist/index.esm.js",
       // ),
       jsbi: resolve(__dirname, "node_modules/jsbi/dist/jsbi.mjs"),
-    }
-    return config
+    };
+    return config;
   },
-}
+  rewrites: async () => [
+    {
+      source: "/api/:path*",
+      destination: "http://127.0.0.1:3000/:path*",
+    },
+  ],
+};
 
-export default nextConfig
+export default nextConfig;

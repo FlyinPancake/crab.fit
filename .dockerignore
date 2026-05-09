@@ -1,0 +1,9 @@
+api/target
+api/.env*
+frontend/node_modules
+frontend/.next
+frontend/.git
+frontend/.env*
+frontend/Dockerfile
+frontend/.dockerignore
+frontend/README.md
