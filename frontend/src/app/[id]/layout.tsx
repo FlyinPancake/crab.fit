@@ -1,15 +1,17 @@
-import Content from '/src/components/Content/Content'
-import Footer from '/src/components/Footer/Footer'
-import Header from '/src/components/Header/Header'
+import Content from "/src/components/Content/Content";
+import Footer from "/src/components/Footer/Footer";
+import Header from "/src/components/Header/Header";
 
-const Layout = async ({ children }: { children: React.ReactNode }) => <>
-  <Content>
-    <Header />
-  </Content>
+const Layout = async ({ children }: { children: React.ReactNode }) => (
+  <>
+    <Content>
+      <Header />
+    </Content>
 
-  {children}
+    {children}
 
-  <Footer />
-</>
+    <Footer />
+  </>
+);
 
-export default Layout
+export default Layout;

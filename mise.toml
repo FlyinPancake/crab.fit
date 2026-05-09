@@ -12,6 +12,11 @@ alias = "m"
 run = "sea migrate"
 dir = "{{ config_root }}/api/adaptors/sql"
 
+[tasks.generate-openapi]
+alias = "go"
+run = "yarn generate-openapi"
+dir = "{{ config_root }}/frontend"
+
 [tasks.run-api]
 alias = "ra"
 run = "cargo run"
@@ -21,3 +26,11 @@ dir = "{{ config_root }}/api"
 alias = "da"
 run = "mise watch -fr run-api"
 dir = "{{ config_root }}/api"
+
+[tasks.dev-frontend]
+alias = "df"
+run = "yarn dev"
+dir = "{{ config_root }}/frontend"
+
+[tasks.dev]
+depends = [{ task = "dev-frontend" }, { task = "dev-api" }]

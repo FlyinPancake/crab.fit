@@ -58,9 +58,10 @@ const Page = async (props: PageProps) => {
           <h1 className={styles.name}>{event.name}</h1>
           <span
             className={styles.date}
-            title={Temporal.Instant.fromEpochMilliseconds(
-              event.created_at * 1000,
-            ).toLocaleString(i18n.language, { dateStyle: "long" })}
+            title={Temporal.Instant.fromEpochMilliseconds(event.created_at * 1000).toLocaleString(
+              i18n.language,
+              { dateStyle: "long" },
+            )}
           >
             {t("common:created", {
               date: relativeTimeFormat(
@@ -70,9 +71,7 @@ const Page = async (props: PageProps) => {
             })}
           </span>
 
-          <Copyable className={styles.info}>
-            {`https://crab.fit/${event.id}`}
-          </Copyable>
+          <Copyable className={styles.info}>{`https://crab.fit/${event.id}`}</Copyable>
           <p className={makeClass(styles.info, styles.noPrint)}>
             <Trans i18nKey="event:nav.shareinfo" t={t} i18n={i18n}>
               _

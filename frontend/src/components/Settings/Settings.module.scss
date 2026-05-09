@@ -13,8 +13,8 @@
   right: 12px;
   z-index: 200;
   border-radius: 100%;
-  transition: background-color .15s;
-  transition: transform .15s;
+  transition: background-color 0.15s;
+  transition: transform 0.15s;
   padding: 0;
 
   &:focus-visible {
@@ -51,7 +51,10 @@
   opacity: 0;
   transform: translateY(-10px);
   visibility: hidden;
-  transition: opacity .15s, transform .15s, visibility .15s;
+  transition:
+    opacity 0.15s,
+    transform 0.15s,
+    visibility 0.15s;
 
   & > div {
     position: absolute;
@@ -65,7 +68,7 @@
     width: 270px;
     box-sizing: border-box;
     max-width: calc(100% - 20px);
-    box-shadow: 0 3px 6px 0 rgba(0,0,0,.3);
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.3);
   }
 
   &[open] {

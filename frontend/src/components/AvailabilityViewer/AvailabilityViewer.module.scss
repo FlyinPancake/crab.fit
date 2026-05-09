@@ -48,8 +48,8 @@
   font-size: 12px;
   user-select: none;
   background: var(--background);
-  border-radius: .3em;
-  padding: .1em .2em;
+  border-radius: 0.3em;
+  padding: 0.1em 0.2em;
   white-space: nowrap;
 }
 
@@ -84,18 +84,19 @@
   border-left: 1px solid var(--text);
   border-right: 1px solid var(--text);
 
-  &[data-border-left=true] {
+  &[data-border-left="true"] {
     border-left: 2px solid var(--text);
     border-top-left-radius: 3px;
     border-bottom-left-radius: 3px;
   }
-  &[data-border-right=true] {
+  &[data-border-right="true"] {
     border-right: 2px solid var(--text);
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
   }
 
-  & .time + .timespace, & .timespace:first-of-type {
+  & .time + .timespace,
+  & .timespace:first-of-type {
     border-top: 2px solid var(--text);
   }
 }
@@ -103,7 +104,7 @@
 .time {
   height: 10px;
   background-origin: border-box;
-  transition: background-color .1s;
+  transition: background-color 0.1s;
   position: relative;
 
   border-top-width: 2px;
@@ -116,16 +117,16 @@
 }
 
 .nonEditable:hover::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background-color: var(--highlight-color, rgba(0,0,0,.3));
+  background-color: var(--highlight-color, rgba(0, 0, 0, 0.3));
 }
 
 .editable {
   @media (hover: hover) {
     &:hover:not(:active) {
-      opacity: .8;
+      opacity: 0.8;
       background-image: linear-gradient(var(--hover-color), var(--hover-color));
     }
   }
@@ -136,8 +137,8 @@
     45deg,
     transparent,
     transparent 4.3px,
-    var(--highlight-color, rgba(0,0,0,.5)) 4.3px,
-    var(--highlight-color, rgba(0,0,0,.5)) 8.6px
+    var(--highlight-color, rgba(0, 0, 0, 0.5)) 4.3px,
+    var(--highlight-color, rgba(0, 0, 0, 0.5)) 8.6px
   );
 }
 
@@ -178,7 +179,7 @@
 
 .personSelected {
   background: var(--primary);
-  color: #FFFFFF;
+  color: #ffffff;
   border-color: var(--primary);
 }
 
@@ -216,7 +217,7 @@
   & > span {
     font-size: 13px;
     display: block;
-    opacity: .8;
+    opacity: 0.8;
     font-weight: 600;
   }
   & > div {
@@ -230,8 +231,8 @@
       border: 1px solid var(--primary);
       border-radius: 3px;
 
-      &[data-disabled=true] {
-        opacity: .5;
+      &[data-disabled="true"] {
+        opacity: 0.5;
         border-color: var(--text);
       }
     }

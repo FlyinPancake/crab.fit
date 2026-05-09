@@ -11,12 +11,7 @@ import { usePalette } from "/src/hooks/usePalette";
 import { useTranslation } from "/src/i18n/client";
 import { useStore } from "/src/stores";
 import useSettingsStore from "/src/stores/settingsStore";
-import {
-  calculateAvailability,
-  calculateTable,
-  makeClass,
-  relativeTimeFormat,
-} from "/src/utils";
+import { calculateAvailability, calculateTable, makeClass, relativeTimeFormat } from "/src/utils";
 
 import styles from "./AvailabilityViewer.module.scss";
 import Skeleton from "./components/Skeleton/Skeleton";
@@ -27,17 +22,11 @@ interface AvailabilityViewerProps {
   table?: ReturnType<typeof calculateTable>;
 }
 
-const AvailabilityViewer = ({
-  times,
-  people,
-  table,
-}: AvailabilityViewerProps) => {
+const AvailabilityViewer = ({ times, people, table }: AvailabilityViewerProps) => {
   const { t, i18n } = useTranslation("event");
 
   const highlight = useStore(useSettingsStore, (state) => state.highlight);
-  const [filteredPeople, setFilteredPeople] = useState(
-    people.map((p) => p.name),
-  );
+  const [filteredPeople, setFilteredPeople] = useState(people.map((p) => p.name));
   const [tempFocus, setTempFocus] = useState<string>();
   const [focusCount, setFocusCount] = useState<number>();
 
@@ -77,20 +66,15 @@ const AvailabilityViewer = ({
           {column ? (
             <div className={styles.dateColumn}>
               {column.header.dateLabel && (
-                <label className={styles.dateLabel}>
-                  {column.header.dateLabel}
-                </label>
+                <label className={styles.dateLabel}>{column.header.dateLabel}</label>
               )}
-              <label className={styles.dayLabel}>
-                {column.header.weekdayLabel}
-              </label>
+              <label className={styles.dayLabel}>{column.header.weekdayLabel}</label>
 
               <div
                 className={styles.times}
                 data-border-left={x === 0 || table.columns.at(x - 1) === null}
                 data-border-right={
-                  x === table.columns.length - 1 ||
-                  table.columns.at(x + 1) === null
+                  x === table.columns.length - 1 || table.columns.at(x + 1) === null
                 }
               >
                 {column.cells.map((cell, y) => {
@@ -106,8 +90,7 @@ const AvailabilityViewer = ({
                     );
 
                   let peopleHere =
-                    availabilities.find((a) => a.date === cell.serialized)
-                      ?.people ?? [];
+                    availabilities.find((a) => a.date === cell.serialized)?.people ?? [];
                   if (tempFocus) {
                     peopleHere = peopleHere.filter((p) => p === tempFocus);
                   }
@@ -124,8 +107,7 @@ const AvailabilityViewer = ({
                       className={makeClass(
                         styles.time,
                         styles.nonEditable,
-                        (focusCount === undefined ||
-                          focusCount === peopleHere.length) &&
+                        (focusCount === undefined || focusCount === peopleHere.length) &&
                           highlight &&
                           (peopleHere.length === max || tempFocus) &&
                           peopleHere.length > 0 &&
@@ -134,8 +116,7 @@ const AvailabilityViewer = ({
                       style={
                         {
                           backgroundColor:
-                            focusCount === undefined ||
-                            focusCount === peopleHere.length
+                            focusCount === undefined || focusCount === peopleHere.length
                               ? color.string
                               : "transparent",
                           "--highlight-color": color.highlight,
@@ -208,16 +189,13 @@ const AvailabilityViewer = ({
                   type="button"
                   className={makeClass(
                     styles.person,
-                    filteredPeople.includes(person.name) &&
-                      styles.personSelected,
+                    filteredPeople.includes(person.name) && styles.personSelected,
                   )}
                   key={person.name}
                   onClick={() => {
                     setTempFocus(undefined);
                     if (filteredPeople.includes(person.name)) {
-                      setFilteredPeople(
-                        filteredPeople.filter((n) => n !== person.name),
-                      );
+                      setFilteredPeople(filteredPeople.filter((n) => n !== person.name));
                     } else {
                       setFilteredPeople([...filteredPeople, person.name]);
                     }
@@ -225,9 +203,7 @@ const AvailabilityViewer = ({
                   onMouseOver={() => setTempFocus(person.name)}
                   onMouseOut={() => setTempFocus(undefined)}
                   title={relativeTimeFormat(
-                    Temporal.Instant.fromEpochMilliseconds(
-                      person.created_at * 1000,
-                    ),
+                    Temporal.Instant.fromEpochMilliseconds(person.created_at * 1000),
                     i18n.language,
                   )}
                 >
@@ -247,9 +223,7 @@ const AvailabilityViewer = ({
                 <div className={styles.timeLabels}>
                   {table?.rows.map((row, i) => (
                     <div className={styles.timeSpace} key={i}>
-                      {row && (
-                        <label className={styles.timeLabel}>{row.label}</label>
-                      )}
+                      {row && <label className={styles.timeLabel}>{row.label}</label>}
                     </div>
                   )) ?? null}
                 </div>
@@ -261,11 +235,7 @@ const AvailabilityViewer = ({
           </div>
 
           {tooltip && (
-            <div
-              className={styles.tooltip}
-              ref={refs.setFloating}
-              style={floatingStyles}
-            >
+            <div className={styles.tooltip} ref={refs.setFloating} style={floatingStyles}>
               <h3>{tooltip.available}</h3>
               <span>{tooltip.date}</span>
               {!!filteredPeople.length && (

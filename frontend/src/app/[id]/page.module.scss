@@ -20,14 +20,14 @@
   display: block;
   text-align: center;
   font-size: 14px;
-  opacity: .8;
+  opacity: 0.8;
   margin: 0 0 10px;
   font-weight: 500;
-  letter-spacing: .01em;
+  letter-spacing: 0.01em;
 
   @media print {
     &::after {
-      content: ' - ' attr(title);
+      content: " - " attr(title);
     }
   }
 }
@@ -60,13 +60,13 @@
 }
 
 .tabSelected {
-  color: #FFF;
+  color: #fff;
   background-color: var(--primary);
   border-color: var(--primary);
 }
 
 .tabDisabled {
-  opacity: .5;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 

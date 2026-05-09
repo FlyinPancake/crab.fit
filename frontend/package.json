@@ -7,7 +7,10 @@
     "dev": "next dev --port 1234",
     "build": "next build",
     "start": "next start",
-    "lint": "oxlint"
+    "lint": "oxlint",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "generate-openapi": "openapi-typescript http://localhost:3000/docs/openapi.json -o src/config/api-types.gen.ts"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.10.0",
@@ -40,15 +43,17 @@
     "@types/node": "24",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "openapi-typescript": "^7.13.0",
+    "oxfmt": "^0.48.0",
     "oxlint": "^1.63.0",
     "oxlint-tsgolint": "^0.22.1",
     "sass": "^1.99.0",
     "typescript": "6.0.3",
     "typescript-plugin-css-modules": "^5.2.0"
   },
-  "packageManager": "yarn@4.14.1",
   "resolutions": {
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3"
-  }
+  },
+  "packageManager": "yarn@4.14.1"
 }

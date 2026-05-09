@@ -2,8 +2,8 @@
 // from a PWA, so must remove all existing service workers
 
 self.addEventListener("install", () => {
-  self.skipWaiting()
-})
+  self.skipWaiting();
+});
 
 self.addEventListener("activate", () => {
   self.registration
@@ -12,8 +12,8 @@ self.addEventListener("activate", () => {
     .then((clients) => {
       clients.forEach((client) => {
         if (client.url && "navigate" in client) {
-          client.navigate(client.url)
+          client.navigate(client.url);
         }
-      })
-    })
-})
+      });
+    });
+});

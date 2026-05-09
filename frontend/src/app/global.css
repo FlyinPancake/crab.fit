@@ -1,29 +1,29 @@
 :root {
   color-scheme: light dark;
 
-  --primary: #F79E00;
+  --primary: #f79e00;
 
   /* LIGHT */
-  --background-light: #FFFFFF;
+  --background-light: #ffffff;
   --text-light: #000000;
-  --shadow-light: #F48600;
-  --highlight-light: #F4BB60;
+  --shadow-light: #f48600;
+  --highlight-light: #f4bb60;
   --secondary-light: var(--shadow-light);
   --tertiary-light: var(--highlight-light);
-  --surface-light: #FEF2DD;
-  --error-light: #D32F2F;
-  --loading-light: #DDDDDD;
+  --surface-light: #fef2dd;
+  --error-light: #d32f2f;
+  --loading-light: #dddddd;
   --font-weight-light: 600;
 
   /* DARK */
   --background-dark: #111111;
-  --text-dark: #DDDDDD;
-  --shadow-dark: #CC7313;
-  --highlight-dark: #F4BB60;
+  --text-dark: #dddddd;
+  --shadow-dark: #cc7313;
+  --highlight-dark: #f4bb60;
   --secondary-dark: var(--highlight-dark);
   --tertiary-dark: var(--shadow-dark);
-  --surface-dark: #30240F;
-  --error-dark: #E53935;
+  --surface-dark: #30240f;
+  --error-dark: #e53935;
   --loading-dark: #444444;
   --font-weight-dark: 500;
 
@@ -102,14 +102,16 @@ body {
 }
 
 @media print {
-  #app, .light, .dark {
+  #app,
+  .light,
+  .dark {
     --background: white;
   }
 }
 
 a {
   color: var(--primary);
-  border-radius: .2em;
+  border-radius: 0.2em;
 }
 a:focus-visible {
   outline: var(--focus-ring);
@@ -136,10 +138,12 @@ a:focus-visible {
   background: var(--secondary);
 }
 
-input[type=checkbox], input[type=radio] {
+input[type="checkbox"],
+input[type="radio"] {
   accent-color: var(--primary);
 }
-input[type=checkbox]:focus-visible, input[type=radio]:focus-visible {
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible {
   outline: var(--focus-ring);
   outline-offset: 2px;
 }

@@ -1,5 +1,5 @@
 .skeleton {
-  opacity: .5;
+  opacity: 0.5;
 
   & > div:last-of-type {
     height: 382px;
@@ -16,11 +16,11 @@
   justify-content: space-around;
 
   span {
-    height: .9em;
+    height: 0.9em;
     display: block;
     width: 3ch;
     background: currentColor;
-    border-radius: .2em;
+    border-radius: 0.2em;
   }
 }
 

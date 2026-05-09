@@ -27,11 +27,8 @@ const RecentEvents = ({ eventId, times, onImport }: RecentEventsProps) => {
     () =>
       allRecents
         ?.filter(hasAvailability)
-        .filter(
-          (e) =>
-            e.id !== eventId &&
-            e.user.availability.some((a) => times.includes(a)),
-        ) ?? [],
+        .filter((e) => e.id !== eventId && e.user.availability.some((a) => times.includes(a))) ??
+      [],
     [allRecents],
   );
 
@@ -53,10 +50,7 @@ const RecentEvents = ({ eventId, times, onImport }: RecentEventsProps) => {
   return (
     <>
       {!isOpen && (
-        <Button
-          onClick={() => setIsOpen(true)}
-          icon={<CrabIcon aria-hidden="true" />}
-        >
+        <Button onClick={() => setIsOpen(true)} icon={<CrabIcon aria-hidden="true" />}>
           {t("you.recent_event")}
         </Button>
       )}
@@ -66,11 +60,7 @@ const RecentEvents = ({ eventId, times, onImport }: RecentEventsProps) => {
           <p className={styles.title}>
             <CrabIcon className={styles.icon} />
             <strong>{t("you.recent_event")}</strong>(
-            <button
-              className={styles.linkButton}
-              type="button"
-              onClick={() => setIsOpen(false)}
-            >
+            <button className={styles.linkButton} type="button" onClick={() => setIsOpen(false)}>
               {t("you.integration.close")}
             </button>
             )
@@ -98,9 +88,7 @@ const RecentEvents = ({ eventId, times, onImport }: RecentEventsProps) => {
                 </span>
                 <span style={{ opacity: 0.7, fontSize: ".7em" }}>
                   {relativeTimeFormat(
-                    Temporal.Instant.fromEpochMilliseconds(
-                      recent.created_at * 1000,
-                    ),
+                    Temporal.Instant.fromEpochMilliseconds(recent.created_at * 1000),
                     i18n.language,
                   )}
                 </span>
@@ -109,11 +97,7 @@ const RecentEvents = ({ eventId, times, onImport }: RecentEventsProps) => {
           ))}
 
           <div className={styles.info}>{t("you.integration.info")}</div>
-          <Button
-            isSmall
-            disabled={selected === undefined}
-            onClick={importAvailability}
-          >
+          <Button isSmall disabled={selected === undefined} onClick={importAvailability}>
             {t("you.integration.button")}
           </Button>
         </div>

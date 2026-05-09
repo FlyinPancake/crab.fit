@@ -1,0 +1,28 @@
+{
+  "lsp": {
+    "oxlint": {
+      "initialization_options": {
+        "settings": {
+          "configPath": "frontend/.oxlint.json",
+          "run": "onType",
+          "disableNestedConfig": false,
+          "fixKind": "safe_fix",
+          "unusedDisableDirectives": "deny",
+        },
+      },
+    },
+    "oxfmt": {
+      "initialization_options": {
+        "settings": {
+          "fmt.configPath": "frontend/.oxfmt.json",
+          "run": "onSave",
+        },
+      },
+    },
+  },
+  "languages": {
+    "TSX": { "formatter": { "language_server": { "name": "oxfmt" } } },
+    "TypeScript": { "formatter": { "language_server": { "name": "oxfmt" } } },
+    "JavaScript": { "formatter": { "language_server": { "name": "oxfmt" } } },
+  },
+}

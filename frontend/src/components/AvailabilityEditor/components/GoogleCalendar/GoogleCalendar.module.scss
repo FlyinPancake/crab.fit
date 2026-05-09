@@ -28,7 +28,7 @@
   display: inline;
   cursor: pointer;
   appearance: none;
-  border-radius: .2em;
+  border-radius: 0.2em;
 
   &:focus-visible {
     outline: var(--focus-ring);
@@ -43,11 +43,11 @@
 
 .item {
   display: flex;
-  margin-block: .5em;
+  margin-block: 0.5em;
 }
 
 .name {
-  margin-left: .6em;
+  margin-left: 0.6em;
   font-size: 15px;
   font-weight: 500;
   display: flex;
@@ -57,7 +57,7 @@
 
 .info {
   font-size: 14px;
-  opacity: .6;
+  opacity: 0.6;
   font-weight: 500;
   padding: 14px 0 10px;
 }
