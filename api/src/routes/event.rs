@@ -1,21 +1,22 @@
-use axum::{
-    extract::{self, Path},
-    http::StatusCode,
-    Json,
-};
+use axum::{Extension, Json, extract::Path, http::StatusCode};
 use common::{Adaptor, Event};
-use rand::{seq::SliceRandom, thread_rng, Rng};
+use rand::{RngExt, rng, seq::IndexedRandom};
 use regex::Regex;
+use utoipa_axum::routes;
 
 use crate::{
+    AdaptorExtension, Router,
     errors::ApiError,
     payloads::{ApiResult, EventInput, EventResponse},
-    State,
 };
+
+pub fn router() -> Router {
+    Router::new().routes(routes!(get_event, create_event))
+}
 
 #[utoipa::path(
     get,
-    path = "/event/{event_id}",
+    path = "/{event_id}",
     params(
         ("event_id", description = "The ID of the event"),
     ),
@@ -27,12 +28,10 @@ use crate::{
     tag = "event",
 )]
 /// Get details about an event
-pub async fn get_event<A: Adaptor>(
-    extract::State(state): State<A>,
+pub async fn get_event(
+    Extension(adaptor): AdaptorExtension,
     Path(event_id): Path<String>,
-) -> ApiResult<EventResponse, A> {
-    let adaptor = &state.lock().await.adaptor;
-
+) -> ApiResult<EventResponse> {
     let event = adaptor
         .get_event(event_id)
         .await
@@ -46,7 +45,7 @@ pub async fn get_event<A: Adaptor>(
 
 #[utoipa::path(
     post,
-    path = "/event",
+    path = "/",
     request_body(content = EventInput, description = "New event details"),
     responses(
         (status = 201, description = "Created", body = EventResponse),
@@ -57,12 +56,10 @@ pub async fn get_event<A: Adaptor>(
     tag = "event",
 )]
 /// Create a new event
-pub async fn create_event<A: Adaptor>(
-    extract::State(state): State<A>,
+pub async fn create_event(
+    Extension(adaptor): AdaptorExtension,
     Json(input): Json<EventInput>,
-) -> Result<(StatusCode, Json<EventResponse>), ApiError<A>> {
-    let adaptor = &state.lock().await.adaptor;
-
+) -> Result<(StatusCode, Json<EventResponse>), ApiError> {
     // Get the current timestamp
     let now = chrono::offset::Utc::now();
 
@@ -112,10 +109,12 @@ fn generate_name() -> String {
         serde_json::from_slice(include_bytes!("../res/adjectives.json")).unwrap();
     let crabs: Vec<String> = serde_json::from_slice(include_bytes!("../res/crabs.json")).unwrap();
 
+    let mut rng = rng();
+
     format!(
         "{} {} Crab",
-        adjectives.choose(&mut thread_rng()).unwrap(),
-        crabs.choose(&mut thread_rng()).unwrap()
+        adjectives.choose(&mut rng).unwrap(),
+        crabs.choose(&mut rng).unwrap()
     )
 }
 
@@ -125,7 +124,7 @@ fn generate_id(name: &str) -> String {
     if id.replace('-', "").is_empty() {
         id = encode_name(generate_name());
     }
-    let number = thread_rng().gen_range(100000..=999999);
+    let number = rng().random_range(100000..=999999);
     format!("{}-{}", id, number)
 }
 

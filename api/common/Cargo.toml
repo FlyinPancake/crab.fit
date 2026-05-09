@@ -1,9 +1,11 @@
 [package]
 name = "common"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "Shared structs and traits for the data storage and transfer of Crab Fit"
 
 [dependencies]
 async-trait = "0.1.89"
 chrono = "0.4.44"
+ambassador = "0.5"
+thiserror = "2.0.18"

@@ -2,7 +2,7 @@ use std::{collections::HashMap, error::Error, fmt::Display};
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use common::{Adaptor, Event, Person, Stats};
+use common::{Adaptor, AdaptorError, Event, Person, Stats};
 use tokio::sync::Mutex;
 
 struct State {
@@ -17,33 +17,31 @@ pub struct MemoryAdaptor {
 
 #[async_trait]
 impl Adaptor for MemoryAdaptor {
-    type Error = MemoryAdaptorError;
-
-    async fn get_stats(&self) -> Result<Stats, Self::Error> {
+    async fn get_stats(&self) -> Result<Stats, AdaptorError> {
         let state = self.state.lock().await;
 
         Ok(state.stats.clone())
     }
 
-    async fn increment_stat_event_count(&self) -> Result<i64, Self::Error> {
+    async fn increment_stat_event_count(&self) -> Result<i64, AdaptorError> {
         let mut state = self.state.lock().await;
 
         state.stats.event_count += 1;
         Ok(state.stats.event_count)
     }
 
-    async fn increment_stat_person_count(&self) -> Result<i64, Self::Error> {
+    async fn increment_stat_person_count(&self) -> Result<i64, AdaptorError> {
         let mut state = self.state.lock().await;
 
         state.stats.person_count += 1;
         Ok(state.stats.person_count)
     }
 
-    async fn get_people(&self, event_id: String) -> Result<Option<Vec<Person>>, Self::Error> {
+    async fn get_people(&self, event_id: String) -> Result<Option<Vec<Person>>, AdaptorError> {
         let state = self.state.lock().await;
 
         // Event doesn't exist
-        if state.events.get(&event_id).is_none() {
+        if !state.events.contains_key(&event_id) {
             return Ok(None);
         }
 
@@ -67,11 +65,11 @@ impl Adaptor for MemoryAdaptor {
         &self,
         event_id: String,
         person: Person,
-    ) -> Result<Option<Person>, Self::Error> {
+    ) -> Result<Option<Person>, AdaptorError> {
         let mut state = self.state.lock().await;
 
         // Check event exists
-        if state.events.get(&event_id).is_none() {
+        if !state.events.contains_key(&event_id) {
             return Ok(None);
         }
 
@@ -82,7 +80,7 @@ impl Adaptor for MemoryAdaptor {
         Ok(Some(person))
     }
 
-    async fn get_event(&self, id: String) -> Result<Option<Event>, Self::Error> {
+    async fn get_event(&self, id: String) -> Result<Option<Event>, AdaptorError> {
         let mut state = self.state.lock().await;
 
         let event = state.events.get(&id).cloned();
@@ -94,7 +92,7 @@ impl Adaptor for MemoryAdaptor {
         Ok(event)
     }
 
-    async fn create_event(&self, event: Event) -> Result<Event, Self::Error> {
+    async fn create_event(&self, event: Event) -> Result<Event, AdaptorError> {
         let mut state = self.state.lock().await;
 
         state.events.insert(event.id.clone(), event.clone());
@@ -102,7 +100,7 @@ impl Adaptor for MemoryAdaptor {
         Ok(event)
     }
 
-    async fn delete_events(&self, cutoff: DateTime<Utc>) -> Result<Stats, Self::Error> {
+    async fn delete_events(&self, cutoff: DateTime<Utc>) -> Result<Stats, AdaptorError> {
         let mut state = self.state.lock().await;
 
         // Delete events older than cutoff date
@@ -139,8 +137,8 @@ impl Adaptor for MemoryAdaptor {
 
 impl MemoryAdaptor {
     pub async fn new() -> Self {
-        println!("🧠 Using in-memory storage");
-        println!("🚨 WARNING: All data will be lost when the process ends. Make sure you choose a database adaptor before deploying.");
+        tracing::info!("Using in-memory storage");
+        tracing::warn!("This adaptor is not suitable for production use. All data will be lost when the process ends.");
 
         let state = Mutex::new(State {
             stats: Stats {

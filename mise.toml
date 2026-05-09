@@ -24,7 +24,7 @@ dir = "{{ config_root }}/api"
 
 [tasks.dev-api]
 alias = "da"
-run = "mise watch -fr run-api"
+run = "mise watch -fr run-api -w src -w adaptors -w common -w Cargo.toml -w Cargo.lock"
 dir = "{{ config_root }}/api"
 
 [tasks.dev-frontend]

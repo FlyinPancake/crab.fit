@@ -1,15 +1,20 @@
 use std::env;
 
-use axum::{extract, http::HeaderMap};
+use axum::{http::HeaderMap, Extension};
 use chrono::{Duration, Utc};
 use common::Adaptor;
 use tracing::info;
+use utoipa_axum::routes;
 
-use crate::{errors::ApiError, State};
+use crate::{errors::ApiError, AdaptorExtension, Router};
+
+pub fn router() -> Router {
+    Router::new().routes(routes!(cleanup))
+}
 
 #[utoipa::path(
     get,
-    path = "/tasks/cleanup",
+    path = "/cleanup",
     responses(
         (status = 200, description = "Cleanup complete"),
         (status = 401, description = "Missing or incorrect X-Cron-Key header"),
@@ -19,10 +24,10 @@ use crate::{errors::ApiError, State};
     tag = "tasks",
 )]
 /// Delete events older than 3 months
-pub async fn cleanup<A: Adaptor>(
-    extract::State(state): State<A>,
+pub async fn cleanup(
+    Extension(adaptor): AdaptorExtension,
     headers: HeaderMap,
-) -> Result<(), ApiError<A>> {
+) -> Result<(), ApiError> {
     // Check cron key
     let cron_key_header: String = headers
         .get("X-Cron-Key")
@@ -34,8 +39,6 @@ pub async fn cleanup<A: Adaptor>(
     }
 
     info!("Running cleanup task");
-
-    let adaptor = &state.lock().await.adaptor;
 
     let result = adaptor
         .delete_events(Utc::now() - Duration::days(90))

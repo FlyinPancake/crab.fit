@@ -1,7 +1,7 @@
 [package]
 name = "sql-adaptor"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 migration = { path = "migration/" }
@@ -11,11 +11,11 @@ async-trait = "0.1.89"
 chrono = "0.4.44"
 common = { path = "../../common" }
 sea-orm = { version = "1.1.20", features = [
-    "macros",
-    "runtime-tokio-rustls",
-    "sqlx-mysql",
-    "sqlx-postgres",
-    "sqlx-sqlite",
+  "macros",
+  "runtime-tokio-rustls",
+  "sqlx-mysql",
+  "sqlx-postgres",
+  "sqlx-sqlite",
 ] }
 sea-orm-migration = "1.1.20"
 serde = { version = "1.0.228", features = ["derive"] }

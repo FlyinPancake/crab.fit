@@ -1,20 +1,27 @@
-use axum::{
-    extract::{self, Path},
+use axum::{extract::Path, Extension, Json};
+use axum_extra::{
     headers::{authorization::Bearer, Authorization},
-    Json, TypedHeader,
+    TypedHeader,
 };
 use base64::{engine::general_purpose, Engine};
 use common::{Adaptor, Person};
+use utoipa_axum::routes;
 
 use crate::{
     errors::ApiError,
     payloads::{ApiResult, PersonInput, PersonResponse},
-    State,
+    AdaptorExtension, Router,
 };
+
+pub fn router() -> Router {
+    Router::new()
+        .routes(routes!(get_person, update_person))
+        .routes(routes!(get_people))
+}
 
 #[utoipa::path(
     get,
-    path = "/event/{event_id}/people",
+    path = "/{event_id}/people",
     params(
         ("event_id", description = "The ID of the event"),
     ),
@@ -26,12 +33,10 @@ use crate::{
     tag = "person",
 )]
 /// Get availabilities for an event
-pub async fn get_people<A: Adaptor>(
-    extract::State(state): State<A>,
+pub async fn get_people(
+    Extension(adaptor): AdaptorExtension,
     Path(event_id): Path<String>,
-) -> ApiResult<Vec<PersonResponse>, A> {
-    let adaptor = &state.lock().await.adaptor;
-
+) -> ApiResult<Vec<PersonResponse>> {
     let people = adaptor
         .get_people(event_id)
         .await
@@ -56,7 +61,7 @@ pub async fn get_people<A: Adaptor>(
 
 #[utoipa::path(
     get,
-    path = "/event/{event_id}/people/{person_name}",
+    path = "/{event_id}/people/{person_name}",
     params(
         ("event_id", description = "The ID of the event"),
         ("person_name", description = "The name of the person"),
@@ -73,13 +78,11 @@ pub async fn get_people<A: Adaptor>(
     tag = "person",
 )]
 /// Login or create a person for an event
-pub async fn get_person<A: Adaptor>(
-    extract::State(state): State<A>,
+pub async fn get_person(
+    Extension(adaptor): AdaptorExtension,
     Path((event_id, person_name)): Path<(String, String)>,
     bearer: Option<TypedHeader<Authorization<Bearer>>>,
-) -> ApiResult<PersonResponse, A> {
-    let adaptor = &state.lock().await.adaptor;
-
+) -> ApiResult<PersonResponse> {
     // Get inputted password
     let password = parse_password(bearer);
 
@@ -140,7 +143,7 @@ pub async fn get_person<A: Adaptor>(
 
 #[utoipa::path(
     patch,
-    path = "/event/{event_id}/people/{person_name}",
+    path = "/{event_id}/people/{person_name}",
     params(
         ("event_id", description = "The ID of the event"),
         ("person_name", description = "The name of the person"),
@@ -158,14 +161,12 @@ pub async fn get_person<A: Adaptor>(
     tag = "person",
 )]
 /// Update a person's availabilities
-pub async fn update_person<A: Adaptor>(
-    extract::State(state): State<A>,
+pub async fn update_person(
+    Extension(adaptor): AdaptorExtension,
     Path((event_id, person_name)): Path<(String, String)>,
     bearer: Option<TypedHeader<Authorization<Bearer>>>,
     Json(input): Json<PersonInput>,
-) -> ApiResult<PersonResponse, A> {
-    let adaptor = &state.lock().await.adaptor;
-
+) -> ApiResult<PersonResponse> {
     let existing_people = adaptor
         .get_people(event_id.clone())
         .await

@@ -1,6 +1,3 @@
-use crate::payloads;
-use crate::routes;
-
 use utoipa::openapi::security::ApiKey;
 use utoipa::openapi::security::ApiKeyValue;
 use utoipa::{
@@ -12,22 +9,6 @@ use utoipa::{
 #[derive(OpenApi)]
 #[openapi(
     info(title = "Crab Fit API"),
-    paths(
-        routes::stats::get_stats,
-        routes::event::create_event,
-        routes::event::get_event,
-        routes::person::get_people,
-        routes::person::get_person,
-        routes::person::update_person,
-        routes::tasks::cleanup,
-    ),
-    components(schemas(
-        payloads::StatsResponse,
-        payloads::EventResponse,
-        payloads::PersonResponse,
-        payloads::EventInput,
-        payloads::PersonInput,
-    )),
     tags(
         (name = "info"),
         (name = "event"),

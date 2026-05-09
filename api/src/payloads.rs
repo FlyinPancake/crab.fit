@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 
 use crate::errors::ApiError;
 
-pub type ApiResult<T, A> = Result<Json<T>, ApiError<A>>;
+pub type ApiResult<T> = Result<Json<T>, ApiError>;
 
 #[derive(Deserialize, ToSchema)]
 pub struct EventInput {

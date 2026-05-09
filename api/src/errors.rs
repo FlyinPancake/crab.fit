@@ -1,17 +1,24 @@
-use axum::{http::StatusCode, response::IntoResponse};
-use common::Adaptor;
+use axum::{
+    http::{Response, StatusCode},
+    response::IntoResponse,
+};
+use common::AdaptorError;
 
-pub enum ApiError<A: Adaptor> {
-    AdaptorError(A::Error),
+pub enum ApiError {
+    AdaptorError(AdaptorError),
     NotFound,
     NotAuthorized,
 }
 
 // Define what the error types above should return
-impl<A: Adaptor> IntoResponse for ApiError<A> {
-    fn into_response(self) -> axum::response::Response {
+impl IntoResponse for ApiError {
+    fn into_response(self) -> Response<axum::body::Body> {
         match self {
-            ApiError::AdaptorError(e) => {
+            ApiError::AdaptorError(AdaptorError::Conflict) => StatusCode::CONFLICT.into_response(),
+            ApiError::AdaptorError(AdaptorError::InvalidInput(_)) => {
+                StatusCode::UNPROCESSABLE_ENTITY.into_response()
+            }
+            ApiError::AdaptorError(AdaptorError::Internal(e)) => {
                 tracing::error!(?e);
                 StatusCode::INTERNAL_SERVER_ERROR.into_response()
             }

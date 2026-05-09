@@ -2,7 +2,7 @@ use std::{env, error::Error, fmt::Display};
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use common::{Adaptor, Event, Person, Stats};
+use common::{Adaptor, AdaptorError, Event, Person, Stats};
 use google_cloud::{
     authorize::ApplicationCredentials,
     datastore::{Client, Filter, FromValue, IntoValue, Key, KeyID, Query},
@@ -22,16 +22,22 @@ const STATS_PEOPLE_ID: &str = "personCount";
 
 #[async_trait]
 impl Adaptor for DatastoreAdaptor {
-    type Error = DatastoreAdaptorError;
-
-    async fn get_stats(&self) -> Result<Stats, Self::Error> {
+    async fn get_stats(&self) -> Result<Stats, AdaptorError> {
         let mut client = self.client.lock().await;
 
         let event_key = Key::new(STATS_KIND).id(STATS_EVENTS_ID);
-        let event_stats: DatastoreStats = client.get(event_key).await?.unwrap_or_default();
+        let event_stats: DatastoreStats = client
+            .get(event_key)
+            .await
+            .map_err(AdaptorError::internal)?
+            .unwrap_or_default();
 
         let person_key = Key::new(STATS_KIND).id(STATS_PEOPLE_ID);
-        let person_stats: DatastoreStats = client.get(person_key).await?.unwrap_or_default();
+        let person_stats: DatastoreStats = client
+            .get(person_key)
+            .await
+            .map_err(AdaptorError::internal)?
+            .unwrap_or_default();
 
         Ok(Stats {
             event_count: event_stats.value,
@@ -39,35 +45,50 @@ impl Adaptor for DatastoreAdaptor {
         })
     }
 
-    async fn increment_stat_event_count(&self) -> Result<i64, Self::Error> {
+    async fn increment_stat_event_count(&self) -> Result<i64, AdaptorError> {
         let mut client = self.client.lock().await;
 
         let key = Key::new(STATS_KIND).id(STATS_EVENTS_ID);
-        let mut event_stats: DatastoreStats = client.get(key.clone()).await?.unwrap_or_default();
+        let mut event_stats: DatastoreStats = client
+            .get(key.clone())
+            .await
+            .map_err(AdaptorError::internal)?
+            .unwrap_or_default();
 
         event_stats.value += 1;
-        client.put((key, event_stats.clone())).await?;
+        client
+            .put((key, event_stats.clone()))
+            .await
+            .map_err(AdaptorError::internal)?;
         Ok(event_stats.value)
     }
 
-    async fn increment_stat_person_count(&self) -> Result<i64, Self::Error> {
+    async fn increment_stat_person_count(&self) -> Result<i64, AdaptorError> {
         let mut client = self.client.lock().await;
 
         let key = Key::new(STATS_KIND).id(STATS_PEOPLE_ID);
-        let mut person_stats: DatastoreStats = client.get(key.clone()).await?.unwrap_or_default();
+        let mut person_stats: DatastoreStats = client
+            .get(key.clone())
+            .await
+            .map_err(AdaptorError::internal)?
+            .unwrap_or_default();
 
         person_stats.value += 1;
-        client.put((key, person_stats.clone())).await?;
+        client
+            .put((key, person_stats.clone()))
+            .await
+            .map_err(AdaptorError::internal)?;
         Ok(person_stats.value)
     }
 
-    async fn get_people(&self, event_id: String) -> Result<Option<Vec<Person>>, Self::Error> {
+    async fn get_people(&self, event_id: String) -> Result<Option<Vec<Person>>, AdaptorError> {
         let mut client = self.client.lock().await;
 
         // Check the event exists
         if client
             .get::<DatastoreEvent, _>(Key::new(EVENT_KIND).id(event_id.clone()))
-            .await?
+            .await
+            .map_err(AdaptorError::internal)?
             .is_none()
         {
             return Ok(None);
@@ -79,7 +100,8 @@ impl Adaptor for DatastoreAdaptor {
                     Query::new(PERSON_KIND)
                         .filter(Filter::Equal("eventId".into(), event_id.into_value())),
                 )
-                .await?
+                .await
+                .map_err(AdaptorError::internal)?
                 .into_iter()
                 .filter_map(|entity| {
                     DatastorePerson::from_value(entity.properties().clone())
@@ -94,13 +116,14 @@ impl Adaptor for DatastoreAdaptor {
         &self,
         event_id: String,
         person: Person,
-    ) -> Result<Option<Person>, Self::Error> {
+    ) -> Result<Option<Person>, AdaptorError> {
         let mut client = self.client.lock().await;
 
         // Check the event exists
         if client
             .get::<DatastoreEvent, _>(Key::new(EVENT_KIND).id(event_id.clone()))
-            .await?
+            .await
+            .map_err(AdaptorError::internal)?
             .is_none()
         {
             return Ok(None);
@@ -119,7 +142,8 @@ impl Adaptor for DatastoreAdaptor {
                         person.name.clone().into_value(),
                     )),
             )
-            .await?;
+            .await
+            .map_err(AdaptorError::internal)?;
 
         let mut key = Key::new(PERSON_KIND);
         if let Some(entity) = existing_person.first() {
@@ -128,38 +152,48 @@ impl Adaptor for DatastoreAdaptor {
 
         client
             .put((key, DatastorePerson::from_person(person.clone(), event_id)))
-            .await?;
+            .await
+            .map_err(AdaptorError::internal)?;
 
         Ok(Some(person))
     }
 
-    async fn get_event(&self, id: String) -> Result<Option<Event>, Self::Error> {
+    async fn get_event(&self, id: String) -> Result<Option<Event>, AdaptorError> {
         let mut client = self.client.lock().await;
 
         let key = Key::new(EVENT_KIND).id(id.clone());
-        let existing_event = client.get::<DatastoreEvent, _>(key.clone()).await?;
+        let existing_event = client
+            .get::<DatastoreEvent, _>(key.clone())
+            .await
+            .map_err(AdaptorError::internal)?;
 
         // Mark as visited if it exists
         if let Some(mut event) = existing_event.clone() {
             event.visited = Utc::now().timestamp();
-            client.put((key, event)).await?;
+            client
+                .put((key, event))
+                .await
+                .map_err(AdaptorError::internal)?;
         }
 
         Ok(existing_event.map(|e| e.to_event(id)))
     }
 
-    async fn create_event(&self, event: Event) -> Result<Event, Self::Error> {
+    async fn create_event(&self, event: Event) -> Result<Event, AdaptorError> {
         let mut client = self.client.lock().await;
 
         let key = Key::new(EVENT_KIND).id(event.id.clone());
 
         let ds_event: DatastoreEvent = event.clone().into();
-        client.put((key, ds_event)).await?;
+        client
+            .put((key, ds_event))
+            .await
+            .map_err(AdaptorError::internal)?;
 
         Ok(event)
     }
 
-    async fn delete_events(&self, cutoff: DateTime<Utc>) -> Result<Stats, Self::Error> {
+    async fn delete_events(&self, cutoff: DateTime<Utc>) -> Result<Stats, AdaptorError> {
         let mut client = self.client.lock().await;
 
         let mut keys_to_delete: Vec<Key> = client
@@ -167,7 +201,8 @@ impl Adaptor for DatastoreAdaptor {
                 "visited".into(),
                 cutoff.timestamp().into_value(),
             )))
-            .await?
+            .await
+            .map_err(AdaptorError::internal)?
             .iter()
             .map(|entity| entity.key().clone())
             .collect();
@@ -182,7 +217,8 @@ impl Adaptor for DatastoreAdaptor {
                         Query::new(PERSON_KIND)
                             .filter(Filter::Equal("eventId".into(), id.clone().into_value())),
                     )
-                    .await?
+                    .await
+                    .map_err(AdaptorError::internal)?
                     .iter()
                     .map(|entity| entity.key().clone())
                     .collect();
@@ -192,7 +228,10 @@ impl Adaptor for DatastoreAdaptor {
 
         let person_count = keys_to_delete.len() as i64 - event_count;
 
-        client.delete_all(keys_to_delete).await?;
+        client
+            .delete_all(keys_to_delete)
+            .await
+            .map_err(AdaptorError::internal)?;
 
         Ok(Stats {
             event_count,
