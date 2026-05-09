@@ -1,0 +1,56 @@
+services:
+  api:
+    profiles:
+      - app
+      - api
+    build:
+      context: api
+      args:
+        ADAPTOR: sql-adaptor
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgres://crabfit:crabfit@db:5432/crabfit
+      FRONTEND_URL: http://127.0.0.1:1234
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    profiles:
+      - app
+    build:
+      context: frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://127.0.0.1:3000
+        NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${NEXT_PUBLIC_GOOGLE_CLIENT_ID:-}
+        NEXT_PUBLIC_GOOGLE_API_KEY: ${NEXT_PUBLIC_GOOGLE_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "1234:3000"
+    depends_on:
+      - api
+
+  db:
+    profiles:
+      - db
+      - api
+      - app
+    image: postgres:18-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: crabfit
+      POSTGRES_PASSWORD: crabfit
+      POSTGRES_DB: crabfit
+    volumes:
+      - db_data:/var/lib/postgresql/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crabfit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
