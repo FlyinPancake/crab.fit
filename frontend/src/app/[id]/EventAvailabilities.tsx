@@ -9,7 +9,7 @@ import Content from "/src/components/Content/Content";
 import Login from "/src/components/Login/Login";
 import Section from "/src/components/Section/Section";
 import SelectField from "/src/components/SelectField/SelectField";
-import { EventResponse, getPeople, PersonResponse, updatePerson } from "/src/config/api";
+import { EventResponse, getPeople, PersonResponse, updatePerson } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/client";
 import timezones from "/src/res/timezones.json";
 import { useStore } from "/src/stores";
@@ -77,7 +77,13 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
   // Refetch availabilities
   useEffect(() => {
     if (tab === "group" && event) {
-      getPeople(event.id).then(setPeople).catch(console.warn);
+      getPeople(event.id).then((result) => {
+        if (result.ok) setPeople(result.data);
+        else {
+          setPeople([]);
+          console.warn(result.error);
+        }
+      });
     }
   }, [tab]);
 
@@ -108,8 +114,8 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
           {event?.timezone && event.timezone !== timezone && (
             <p>
               <Trans i18nKey="form.created_in_timezone" t={t} i18n={i18n}>
-                {/* eslint-disable-next-line */}
-                {/* @ts-ignore */}_<strong>{{ timezone: event.timezone }}</strong>_
+                {/* @ts-expect-error react-i18next interpolation idiom */}_
+                <strong>{{ timezone: event.timezone }}</strong>_
                 <a
                   href="#"
                   onClick={(e) => {
@@ -131,7 +137,6 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
               Intl.DateTimeFormat().resolvedOptions().timeZone !== timezone)) && (
             <p>
               <Trans i18nKey="form.local_timezone" t={t} i18n={i18n}>
-                {/* eslint-disable-next-line */}
                 {/* @ts-ignore */}_
                 <strong>{{ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }}</strong>_
                 <a

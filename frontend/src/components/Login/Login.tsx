@@ -4,7 +4,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import Button from "/src/components/Button/Button";
 import Error from "/src/components/Error/Error";
 import TextField from "/src/components/TextField/TextField";
-import { getPerson, PersonResponse } from "/src/config/api";
+import { getPerson, PersonResponse } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/client";
 
 import styles from "./Login.module.scss";
@@ -47,7 +47,11 @@ const Login = ({ eventId, user, onChange }: LoginProps) => {
       if (!eventId) throw "Event ID not set";
 
       const resUser = await getPerson(eventId, username, password || undefined);
-      onChange(resUser, password || undefined);
+      if (!resUser.ok) {
+        setError(t("form.errors.unknown"));
+        return;
+      }
+      onChange(resUser.data, password || undefined);
       reset();
     } catch (e) {
       if (e && typeof e === "object" && "status" in e && e.status === 401) {

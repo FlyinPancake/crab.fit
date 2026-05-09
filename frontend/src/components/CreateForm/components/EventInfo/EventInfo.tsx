@@ -1,7 +1,7 @@
 import { Trans } from "react-i18next/TransWithoutContext";
 
 import Copyable from "/src/components/Copyable/Copyable";
-import { EventResponse } from "/src/config/api";
+import { EventResponse } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/client";
 
 import styles from "./EventInfo.module.scss";

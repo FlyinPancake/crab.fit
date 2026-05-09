@@ -1,10 +1,14 @@
-import { getStats } from "/src/config/api";
+import { getStats } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/server";
 
 import styles from "./Stats.module.scss";
+import { notFound } from "next/navigation";
 
 const Stats = async () => {
-  const stats = await getStats().catch(() => undefined);
+  const statsResponse = await getStats();
+  if (!statsResponse.ok) return notFound();
+  const stats = statsResponse.data;
+
   const { t } = await useTranslation("home");
 
   return stats ? (

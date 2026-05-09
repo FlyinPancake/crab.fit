@@ -9,7 +9,8 @@ services:
         ADAPTOR: sql-adaptor
     ports:
       - "8080:8080"
-      - "3000:3000"
+      # Not needed, just in case to access the API directly
+      # - "3000:3000"
     environment:
       DATABASE_URL: "sqlite::memory:"
       FRONTEND_URL: "http://localhost:8080"

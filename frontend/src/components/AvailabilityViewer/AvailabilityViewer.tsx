@@ -6,7 +6,7 @@ import { Temporal } from "@js-temporal/polyfill";
 
 import Content from "/src/components/Content/Content";
 import Legend from "/src/components/Legend/Legend";
-import { PersonResponse } from "/src/config/api";
+import { PersonResponse } from "/src/app/actions";
 import { usePalette } from "/src/hooks/usePalette";
 import { useTranslation } from "/src/i18n/client";
 import { useStore } from "/src/stores";

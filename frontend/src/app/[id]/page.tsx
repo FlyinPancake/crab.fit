@@ -6,7 +6,7 @@ import { Temporal } from "@js-temporal/polyfill";
 
 import Content from "/src/components/Content/Content";
 import Copyable from "/src/components/Copyable/Copyable";
-import { getEvent } from "/src/config/api";
+import { getEvent } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/server";
 import { makeClass, relativeTimeFormat } from "/src/utils";
 
@@ -19,7 +19,9 @@ interface PageProps {
 
 export const generateMetadata = async (props: PageProps): Promise<Metadata> => {
   const params = await props.params;
-  const event = await getEvent(params.id).catch(() => undefined);
+  const eventResponse = await getEvent(params.id);
+  if (!eventResponse.ok) notFound();
+  const event = eventResponse.data;
   const { t } = await useTranslation("event");
 
   return {
@@ -29,8 +31,9 @@ export const generateMetadata = async (props: PageProps): Promise<Metadata> => {
 
 const Page = async (props: PageProps) => {
   const params = await props.params;
-  const event = await getEvent(params.id).catch(() => undefined);
-  if (!event) notFound();
+  const eventResponse = await getEvent(params.id);
+  if (!eventResponse.ok) notFound();
+  const event = eventResponse.data;
 
   const { t, i18n } = await useTranslation(["common", "event"]);
 

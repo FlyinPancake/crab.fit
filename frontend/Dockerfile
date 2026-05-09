@@ -3,9 +3,9 @@ ARG NODE_VERSION=20
 FROM node:${NODE_VERSION} AS dependencies
 
 WORKDIR /app
-COPY package*.json yarn.lock ./
+COPY package*.json yarn.lock .yarnrc.yml ./
 
-RUN corepack enable yarn && yarn install --frozen-lockfile --production=false
+RUN corepack enable yarn && yarn install --immutable
 
 FROM node:${NODE_VERSION} AS builder
 ARG NEXT_PUBLIC_API_URL

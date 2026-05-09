@@ -12,7 +12,7 @@ import { default as ErrorAlert } from "/src/components/Error/Error";
 import SelectField from "/src/components/SelectField/SelectField";
 import TextField from "/src/components/TextField/TextField";
 import TimeRangeField from "/src/components/TimeRangeField/TimeRangeField";
-import { createEvent, EventResponse } from "/src/config/api";
+import { createEvent, EventResponse } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/client";
 import timezones from "/src/res/timezones.json";
 import useRecentsStore from "/src/stores/recentsStore";
@@ -97,10 +97,13 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
         return setError(t("form.errors.no_time"));
       }
 
-      const newEvent = await createEvent({ name, times, timezone }).catch((e) => {
-        console.error(e);
-        throw new Error("Failed to create event");
-      });
+      const result = await createEvent({ name, times, timezone });
+
+      if (!result.ok) {
+        return setError(t("form.errors.unknown"));
+      }
+
+      const newEvent = result.data;
 
       if (noRedirect) {
         // Show event link

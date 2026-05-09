@@ -31,16 +31,14 @@ WORKDIR /app
 
 FROM node-core AS node-dependencies
 
-COPY frontend/package.json frontend/yarn.lock ./
-RUN corepack enable && yarn install --frozen-lockfile
+COPY frontend/package.json frontend/yarn.lock frontend/.yarnrc.yml ./
+RUN corepack enable && yarn install --immutable
 
 FROM node-core AS node-build
 
 # TODO: find replacement
-ARG NEXT_PUBLIC_API_URL=http://localhost:8080/api/
 # ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 # ARG NEXT_PUBLIC_GOOGLE_API_KEY
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 # ENV NEXT_PUBLIC_GOOGLE_CLIENT_ID=$NEXT_PUBLIC_GOOGLE_CLIENT_ID
 # ENV NEXT_PUBLIC_GOOGLE_API_KEY=$NEXT_PUBLIC_GOOGLE_API_KEY
 
@@ -83,6 +81,6 @@ ENV NODE_ENV=production \
     PORT=8080
 
 # Frontend port (API stays internal on 3000)
-EXPOSE 8080
+EXPOSE 8080 3000
 
 ENTRYPOINT ["/init"]
