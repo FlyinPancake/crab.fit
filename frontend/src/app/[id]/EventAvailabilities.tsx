@@ -54,7 +54,7 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
       setTable(undefined);
       return;
     }
-    if (event && expandTimes.length > 0) {
+    if (event && expandedTimes.length > 0) {
       if (!tableWorker.current) {
         tableWorker.current = window.Worker
           ? new Worker(new URL("/src/workers/calculateTable", import.meta.url))

@@ -102,8 +102,10 @@ const calculateMonth = (
   month: Temporal.PlainYearMonth,
   weekStart: 0 | 1,
 ): Temporal.PlainDate[][] => {
-  const daysBefore = month.toPlainDate({ day: 1 }).dayOfWeek - weekStart;
-  const daysAfter = 6 - month.toPlainDate({ day: month.daysInMonth }).dayOfWeek + weekStart;
+  const firstDow = month.toPlainDate({ day: 1 }).dayOfWeek;
+  const lastDow = month.toPlainDate({ day: month.daysInMonth }).dayOfWeek;
+  const daysBefore = (firstDow - weekStart + 7) % 7;
+  const daysAfter = (weekStart + 6 - lastDow + 7) % 7;
 
   const dates: Temporal.PlainDate[][] = [];
   let curDate = month.toPlainDate({ day: 1 }).subtract({ days: daysBefore });

@@ -275,7 +275,8 @@ struct DatastoreEvent {
     visited: i64,
     times: Vec<String>,
     timezone: String,
-    event_type: String,
+    /// Absent on entities created before the day-based-events migration.
+    event_type: Option<String>,
 }
 
 #[derive(FromValue, IntoValue)]
@@ -319,7 +320,9 @@ impl From<Event> for DatastoreEvent {
             visited: value.visited_at.timestamp(),
             times: value.times,
             timezone: value.timezone,
-            event_type: serde_json::to_string(&value.event_type).unwrap_or_default(),
+            event_type: Some(
+                serde_json::to_string(&value.event_type).expect("EventType serialization"),
+            ),
         }
     }
 }
@@ -333,7 +336,11 @@ impl DatastoreEvent {
             visited_at: unix_to_date(self.visited),
             times: self.times.clone(),
             timezone: self.timezone.clone(),
-            event_type: serde_json::from_str(&self.event_type).unwrap_or_default(),
+            event_type: self
+                .event_type
+                .as_deref()
+                .and_then(|s| serde_json::from_str(s).ok())
+                .unwrap_or_default(),
         }
     }
 }

@@ -17,16 +17,16 @@ import { createEvent, EventResponse } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/client";
 import timezones from "/src/res/timezones.json";
 import useRecentsStore from "/src/stores/recentsStore";
-import { serializeSpecificDay, serializeWeekdayDay } from "/src/utils";
+import { serializeSpecificDay, serializeTime, serializeWeekdayDay } from "/src/utils";
 
 import EventInfo from "./components/EventInfo/EventInfo";
 import styles from "./CreateForm.module.scss";
 
-type EventType = "time" | "day";
+type FormEventType = "time" | "day";
 
 interface Fields {
   name: string;
-  eventType: EventType;
+  eventType: FormEventType;
   /** As `YYYY-MM-DD` or `d` */
   dates: string[];
   time: {
@@ -97,16 +97,11 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
               : range(time.start, time.end - 1);
 
           return hours.map((hour) => {
-            const dateTime = date
-              .toZonedDateTime({ timeZone: timezone, plainTime: Temporal.PlainTime.from({ hour }) })
-              .withTimeZone("UTC");
-            if (isSpecificDates) {
-              // Format as `HHmm-DDMMYYYY`
-              return `${dateTime.hour.toString().padStart(2, "0")}${dateTime.minute.toString().padStart(2, "0")}-${dateTime.day.toString().padStart(2, "0")}${dateTime.month.toString().padStart(2, "0")}${dateTime.year.toString().padStart(4, "0")}`;
-            } else {
-              // Format as `HHmm-d`
-              return `${dateTime.hour.toString().padStart(2, "0")}${dateTime.minute.toString().padStart(2, "0")}-${String(dateTime.dayOfWeek === 7 ? 0 : dateTime.dayOfWeek)}`;
-            }
+            const dateTime = date.toZonedDateTime({
+              timeZone: timezone,
+              plainTime: Temporal.PlainTime.from({ hour }),
+            });
+            return serializeTime(dateTime, isSpecificDates);
           });
         });
       }
@@ -168,7 +163,7 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
         description={t("form.event_type.sublabel")}
         name="eventType"
         value={eventType}
-        onChange={(v) => setValue("eventType", v as EventType)}
+        onChange={(v) => setValue("eventType", v as FormEventType)}
         options={{
           time: t("form.event_type.options.time"),
           day: t("form.event_type.options.day"),

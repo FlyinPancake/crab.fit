@@ -119,7 +119,9 @@ const AvailabilityEditorDays = ({ times, value = [], onChange }: AvailabilityEdi
             startCell.current = { iso: cell.iso, date: cell.date };
             mode.current = isCurrentlySelected ? "remove" : "add";
             setSelecting(new Set([cell.iso]));
-            e.currentTarget.releasePointerCapture(e.pointerId);
+            if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+              e.currentTarget.releasePointerCapture(e.pointerId);
+            }
             document.addEventListener("pointerup", finishSelection, { once: true });
           }}
           onPointerEnter={() => {
