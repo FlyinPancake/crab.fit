@@ -6,6 +6,14 @@
       "label": "Give your event a name!",
       "sublabel": "Or leave blank to generate one"
     },
+    "event_type": {
+      "label": "What kind of event?",
+      "sublabel": "Pick whole days, or a range of times within days",
+      "options": {
+        "time": "Time slots",
+        "day": "Whole days"
+      }
+    },
     "dates": {
       "label": "What dates might work?",
       "sublabel": "Click and drag to select",

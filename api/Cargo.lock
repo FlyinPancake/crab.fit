@@ -663,7 +663,9 @@ dependencies = [
  "ambassador",
  "async-trait",
  "chrono",
+ "serde",
  "thiserror 2.0.18",
+ "utoipa",
 ]
 
 [[package]]

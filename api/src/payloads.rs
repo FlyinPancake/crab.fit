@@ -1,5 +1,5 @@
 use axum::Json;
-use common::{Event, Person, Stats};
+use common::{Event, EventType, Person, Stats};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
@@ -12,6 +12,7 @@ pub struct EventInput {
     pub name: Option<String>,
     pub times: Vec<String>,
     pub timezone: String,
+    pub event_type: Option<EventType>,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -20,6 +21,7 @@ pub struct EventResponse {
     pub name: String,
     pub times: Vec<String>,
     pub timezone: String,
+    pub event_type: EventType,
     pub created_at: i64,
 }
 
@@ -31,6 +33,7 @@ impl From<Event> for EventResponse {
             times: value.times,
             timezone: value.timezone,
             created_at: value.created_at.timestamp(),
+            event_type: value.event_type,
         }
     }
 }

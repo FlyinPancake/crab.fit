@@ -275,6 +275,7 @@ struct DatastoreEvent {
     visited: i64,
     times: Vec<String>,
     timezone: String,
+    event_type: String,
 }
 
 #[derive(FromValue, IntoValue)]
@@ -318,6 +319,7 @@ impl From<Event> for DatastoreEvent {
             visited: value.visited_at.timestamp(),
             times: value.times,
             timezone: value.timezone,
+            event_type: serde_json::to_string(&value.event_type).unwrap_or_default(),
         }
     }
 }
@@ -331,6 +333,7 @@ impl DatastoreEvent {
             visited_at: unix_to_date(self.visited),
             times: self.times.clone(),
             timezone: self.timezone.clone(),
+            event_type: serde_json::from_str(&self.event_type).unwrap_or_default(),
         }
     }
 }

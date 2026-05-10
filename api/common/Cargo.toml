@@ -9,3 +9,5 @@ async-trait = "0.1.89"
 chrono = "0.4.44"
 ambassador = "0.5"
 thiserror = "2.0.18"
+serde = { version = "1.0.228", features = ["derive"] }
+utoipa = "5.5.0"

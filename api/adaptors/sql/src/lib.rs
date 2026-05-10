@@ -143,6 +143,7 @@ impl Adaptor for SqlAdaptor {
             visited_at: Set(event.visited_at.naive_utc()),
             times: Set(serde_json::to_value(event.times).unwrap_or(json!([]))),
             timezone: Set(event.timezone),
+            event_type: Set(serde_json::to_value(event.event_type).unwrap_or(json!([]))),
         }
         .insert(&self.db)
         .await
@@ -247,6 +248,7 @@ impl From<event::Model> for Event {
             visited_at: Utc.from_utc_datetime(&value.visited_at),
             times: serde_json::from_value(value.times).unwrap_or(vec![]),
             timezone: value.timezone,
+            event_type: serde_json::from_value(value.event_type).unwrap_or_default(),
         }
     }
 }

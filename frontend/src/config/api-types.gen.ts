@@ -13,10 +13,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Create a new event
-         * @description Create a new event
-         */
+        /** Create a new event */
         post: operations["create_event"];
         delete?: never;
         options?: never;
@@ -31,10 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get details about an event
-         * @description Get details about an event
-         */
+        /** Get details about an event */
         get: operations["get_event"];
         put?: never;
         post?: never;
@@ -51,10 +45,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get availabilities for an event
-         * @description Get availabilities for an event
-         */
+        /** Get availabilities for an event */
         get: operations["get_people"];
         put?: never;
         post?: never;
@@ -71,20 +62,14 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Login or create a person for an event
-         * @description Login or create a person for an event
-         */
+        /** Login or create a person for an event */
         get: operations["get_person"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /**
-         * Update a person's availabilities
-         * @description Update a person's availabilities
-         */
+        /** Update a person's availabilities */
         patch: operations["update_person"];
         trace?: never;
     };
@@ -95,10 +80,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Get current stats
-         * @description Get current stats
-         */
+        /** Get current stats */
         get: operations["get_stats"];
         put?: never;
         post?: never;
@@ -115,10 +97,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Delete events older than 3 months
-         * @description Delete events older than 3 months
-         */
+        /** Delete events older than 3 months */
         get: operations["cleanup"];
         put?: never;
         post?: never;
@@ -136,15 +115,19 @@ export interface components {
             name?: string | null;
             times: string[];
             timezone: string;
+            event_type?: null | components["schemas"]["EventType"];
         };
         EventResponse: {
             id: string;
             name: string;
             times: string[];
             timezone: string;
+            event_type: components["schemas"]["EventType"];
             /** Format: int64 */
             created_at: number;
         };
+        /** @enum {string} */
+        EventType: "TimeBased" | "DayBased";
         PersonInput: {
             availability: string[];
         };

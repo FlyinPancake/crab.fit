@@ -18,6 +18,36 @@ export const convertTimesToDates = (
   );
 };
 
+/**
+ * Day-based event detection. Day-based time strings have length 1 (`d` weekday)
+ * or 8 (`DDMMYYYY` specific date). Time-based strings are 6 or 13 chars.
+ */
+export const isDayBased = (times: string[]): boolean => {
+  const len = times[0]?.length;
+  return len === 1 || len === 8;
+};
+
+export const isDaySpecific = (times: string[]): boolean => times[0]?.length === 8;
+
+/** Parse a `DDMMYYYY` string into a PlainDate. */
+export const parseSpecificDay = (str: string): Temporal.PlainDate => {
+  if (str.length !== 8) {
+    throw new Error("String must be in DDMMYYYY format");
+  }
+  const day = Number(str.substring(0, 2));
+  const month = Number(str.substring(2, 4));
+  const year = Number(str.substring(4));
+  return Temporal.PlainDate.from({ year, month, day });
+};
+
+/** Parse a single-digit weekday string (0=Sun, 1=Mon, ..., 6=Sat). */
+export const parseWeekdayDay = (str: string): number => {
+  if (str.length !== 1) {
+    throw new Error("String must be in d format");
+  }
+  return Number(str);
+};
+
 // Parse from UTC `HHmm-DDMMYYYY` format into a ZonedDateTime in UTC
 export const parseSpecificDate = (str: string): Temporal.ZonedDateTime => {
   if (str.length !== 13) {
