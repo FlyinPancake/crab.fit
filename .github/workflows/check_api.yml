@@ -41,5 +41,5 @@ jobs:
         with:
           components: ${{ matrix.component }}
           cache-shared-key: ${{ matrix.component }}
-          cache-workspace-key: api -> target
+          rust-src-dir: api
       - run: cargo ${{ matrix.command }}
