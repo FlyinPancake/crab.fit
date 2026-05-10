@@ -1,12 +1,12 @@
 use std::env;
 
-use axum::{http::HeaderMap, Extension};
+use axum::{Extension, http::HeaderMap};
 use chrono::{Duration, Utc};
 use common::Adaptor;
 use tracing::info;
 use utoipa_axum::routes;
 
-use crate::{errors::ApiError, AdaptorExtension, Router};
+use crate::{AdaptorExtension, Router, errors::ApiError};
 
 pub fn router() -> Router {
     Router::new().routes(routes!(cleanup))

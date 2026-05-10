@@ -138,7 +138,9 @@ impl Adaptor for MemoryAdaptor {
 impl MemoryAdaptor {
     pub async fn new() -> Self {
         tracing::info!("Using in-memory storage");
-        tracing::warn!("This adaptor is not suitable for production use. All data will be lost when the process ends.");
+        tracing::warn!(
+            "This adaptor is not suitable for production use. All data will be lost when the process ends."
+        );
 
         let state = Mutex::new(State {
             stats: Stats {

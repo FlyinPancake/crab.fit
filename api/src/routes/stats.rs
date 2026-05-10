@@ -3,9 +3,9 @@ use common::Adaptor;
 use utoipa_axum::routes;
 
 use crate::{
+    AdaptorExtension, Router,
     errors::ApiError,
     payloads::{ApiResult, StatsResponse},
-    AdaptorExtension, Router,
 };
 
 pub(super) fn router() -> Router {

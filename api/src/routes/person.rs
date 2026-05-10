@@ -1,16 +1,16 @@
-use axum::{extract::Path, Extension, Json};
+use axum::{Extension, Json, extract::Path};
 use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
     TypedHeader,
+    headers::{Authorization, authorization::Bearer},
 };
-use base64::{engine::general_purpose, Engine};
+use base64::{Engine, engine::general_purpose};
 use common::{Adaptor, Person};
 use utoipa_axum::routes;
 
 use crate::{
+    AdaptorExtension, Router,
     errors::ApiError,
     payloads::{ApiResult, PersonInput, PersonResponse},
-    AdaptorExtension, Router,
 };
 
 pub fn router() -> Router {

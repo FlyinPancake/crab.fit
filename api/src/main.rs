@@ -1,21 +1,22 @@
 use std::{env, net::SocketAddr, sync::Arc};
 
 use axum::{
+    Extension,
     http::{
-        header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
         HeaderValue, Method,
+        header::{ACCEPT, AUTHORIZATION, CONTENT_TYPE},
     },
-    serve, Extension,
+    serve,
 };
 
 use tokio::net::TcpListener;
-use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
+use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
 use tracing::Level;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::adaptors::{create_adaptor, AnyAdaptor};
+use crate::adaptors::{AnyAdaptor, create_adaptor};
 use crate::docs::ApiDoc;
 
 mod adaptors;
