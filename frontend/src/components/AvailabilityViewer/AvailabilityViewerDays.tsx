@@ -12,12 +12,7 @@ import { usePalette } from "/src/hooks/usePalette";
 import { useTranslation } from "/src/i18n/client";
 import { useStore } from "/src/stores";
 import useSettingsStore from "/src/stores/settingsStore";
-import {
-  calculateAvailability,
-  makeClass,
-  parseSpecificDay,
-  relativeTimeFormat,
-} from "/src/utils";
+import { calculateAvailability, makeClass, parseSpecificDay, relativeTimeFormat } from "/src/utils";
 
 import styles from "./AvailabilityViewer.module.scss";
 import monthStyles from "/src/components/CalendarField/components/Month/Month.module.scss";

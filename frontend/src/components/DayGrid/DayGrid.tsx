@@ -46,10 +46,7 @@ const DayGrid = ({ eventDates, renderCell }: DayGridProps) => {
 
   const [page, setPage] = useState<Temporal.PlainYearMonth>(initialPage);
 
-  const grid = useMemo(
-    () => calculateMonth(page, weekStart),
-    [page, weekStart],
-  );
+  const grid = useMemo(() => calculateMonth(page, weekStart), [page, weekStart]);
 
   return (
     <>

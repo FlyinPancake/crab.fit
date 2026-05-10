@@ -148,23 +148,23 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
               event.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) ||
               (event?.timezone === undefined &&
                 Intl.DateTimeFormat().resolvedOptions().timeZone !== timezone)) && (
-            <p>
-              <Trans i18nKey="form.local_timezone" t={t} i18n={i18n}>
-                {/* @ts-ignore */}_
-                <strong>{{ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }}</strong>_
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-                  }}
-                >
+              <p>
+                <Trans i18nKey="form.local_timezone" t={t} i18n={i18n}>
+                  {/* @ts-ignore */}_
+                  <strong>{{ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }}</strong>_
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    }}
+                  >
+                    _
+                  </a>
                   _
-                </a>
-                _
-              </Trans>
-            </p>
-          )}
+                </Trans>
+              </p>
+            )}
         </Content>
       </Section>
 
