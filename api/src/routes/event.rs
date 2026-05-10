@@ -90,6 +90,7 @@ pub async fn create_event(
             visited_at: now,
             times: input.times,
             timezone: input.timezone,
+            event_type: input.event_type.unwrap_or_default(),
         })
         .await
         .map_err(ApiError::AdaptorError)?;

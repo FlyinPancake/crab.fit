@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Trans } from "react-i18next/TransWithoutContext";
 
 import AvailabilityEditor from "/src/components/AvailabilityEditor/AvailabilityEditor";
+import AvailabilityEditorDays from "/src/components/AvailabilityEditor/AvailabilityEditorDays";
 import AvailabilityViewer from "/src/components/AvailabilityViewer/AvailabilityViewer";
+import AvailabilityViewerDays from "/src/components/AvailabilityViewer/AvailabilityViewerDays";
 import Content from "/src/components/Content/Content";
 import Login from "/src/components/Login/Login";
 import Section from "/src/components/Section/Section";
@@ -29,7 +31,11 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
   const timeFormat = useStore(useSettingsStore, (state) => state.timeFormat) ?? "12h";
 
   const [people, setPeople] = useState<PersonResponse[]>([]);
-  const expandedTimes = useMemo(() => expandTimes(event?.times ?? []), [event?.times]);
+  const dayMode = event?.event_type === "DayBased";
+  const expandedTimes = useMemo(
+    () => (dayMode ? (event?.times ?? []) : expandTimes(event?.times ?? [])),
+    [event?.times, dayMode],
+  );
 
   const [user, setUser] = useState<PersonResponse>();
   const [password, setPassword] = useState<string>();
@@ -44,7 +50,11 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
   const [table, setTable] = useState<ReturnType<typeof calculateTable>>();
 
   useEffect(() => {
-    if (event && expandTimes.length > 0) {
+    if (dayMode) {
+      setTable(undefined);
+      return;
+    }
+    if (event && expandedTimes.length > 0) {
       if (!tableWorker.current) {
         tableWorker.current = window.Worker
           ? new Worker(new URL("/src/workers/calculateTable", import.meta.url))
@@ -60,7 +70,7 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
         setTable(calculateTable(args));
       }
     }
-  }, [expandedTimes, i18n.language, timeFormat, timezone]);
+  }, [expandedTimes, i18n.language, timeFormat, timezone, dayMode]);
 
   // Add this event to recents
   const addRecent = useRecentsStore((state) => state.addRecent);
@@ -101,17 +111,19 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
             }}
           />
 
-          <SelectField
-            label={t("form.timezone")}
-            name="timezone"
-            id="timezone"
-            isInline
-            value={timezone}
-            onChange={(event) => setTimezone(event.currentTarget.value)}
-            options={timezones}
-          />
+          {!dayMode && (
+            <SelectField
+              label={t("form.timezone")}
+              name="timezone"
+              id="timezone"
+              isInline
+              value={timezone}
+              onChange={(event) => setTimezone(event.currentTarget.value)}
+              options={timezones}
+            />
+          )}
 
-          {event?.timezone && event.timezone !== timezone && (
+          {!dayMode && event?.timezone && event.timezone !== timezone && (
             <p>
               <Trans i18nKey="form.created_in_timezone" t={t} i18n={i18n}>
                 {/* @ts-expect-error react-i18next interpolation idiom */}_
@@ -130,28 +142,29 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
             </p>
           )}
 
-          {((Intl.DateTimeFormat().resolvedOptions().timeZone !== timezone &&
-            event?.timezone &&
-            event.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) ||
-            (event?.timezone === undefined &&
-              Intl.DateTimeFormat().resolvedOptions().timeZone !== timezone)) && (
-            <p>
-              <Trans i18nKey="form.local_timezone" t={t} i18n={i18n}>
-                {/* @ts-ignore */}_
-                <strong>{{ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }}</strong>_
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
-                  }}
-                >
+          {!dayMode &&
+            ((Intl.DateTimeFormat().resolvedOptions().timeZone !== timezone &&
+              event?.timezone &&
+              event.timezone !== Intl.DateTimeFormat().resolvedOptions().timeZone) ||
+              (event?.timezone === undefined &&
+                Intl.DateTimeFormat().resolvedOptions().timeZone !== timezone)) && (
+              <p>
+                <Trans i18nKey="form.local_timezone" t={t} i18n={i18n}>
+                  {/* @ts-ignore */}_
+                  <strong>{{ timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }}</strong>_
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+                    }}
+                  >
+                    _
+                  </a>
                   _
-                </a>
-                _
-              </Trans>
-            </p>
-          )}
+                </Trans>
+              </p>
+            )}
         </Content>
       </Section>
 
@@ -186,38 +199,53 @@ const EventAvailabilities = ({ event }: EventAvailabilitiesProps) => {
       </Content>
 
       {tab === "group" ? (
-        <AvailabilityViewer times={expandedTimes} people={people} table={table} />
-      ) : (
-        user && (
-          <AvailabilityEditor
-            eventId={event?.id}
-            times={expandedTimes}
-            timezone={timezone}
-            value={user.availability}
-            onChange={(availability) => {
-              if (!event) return;
-              const oldAvailability = [...user.availability];
-              setUser({ ...user, availability });
-              addRecent({
-                id: event.id,
-                name: event.name,
-                created_at: event.created_at,
-                user:
-                  availability.length > 0
-                    ? {
-                        name: user.name,
-                        availability,
-                      }
-                    : undefined,
-              });
-              updatePerson(event.id, user.name, { availability }, password).catch((e) => {
-                console.warn(e);
-                setUser({ ...user, availability: oldAvailability });
-              });
-            }}
-            table={table}
-          />
+        dayMode ? (
+          <AvailabilityViewerDays times={expandedTimes} people={people} />
+        ) : (
+          <AvailabilityViewer times={expandedTimes} people={people} table={table} />
         )
+      ) : (
+        user &&
+        (() => {
+          const handleChange = (availability: string[]) => {
+            if (!event) return;
+            const oldAvailability = [...user.availability];
+            setUser({ ...user, availability });
+            addRecent({
+              id: event.id,
+              name: event.name,
+              created_at: event.created_at,
+              user:
+                availability.length > 0
+                  ? {
+                      name: user.name,
+                      availability,
+                    }
+                  : undefined,
+            });
+            updatePerson(event.id, user.name, { availability }, password).catch((e) => {
+              console.warn(e);
+              setUser({ ...user, availability: oldAvailability });
+            });
+          };
+
+          return dayMode ? (
+            <AvailabilityEditorDays
+              times={expandedTimes}
+              value={user.availability}
+              onChange={handleChange}
+            />
+          ) : (
+            <AvailabilityEditor
+              eventId={event?.id}
+              times={expandedTimes}
+              timezone={timezone}
+              value={user.availability}
+              onChange={handleChange}
+              table={table}
+            />
+          );
+        })()
       )}
     </>
   );

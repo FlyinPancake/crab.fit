@@ -12,16 +12,21 @@ import { default as ErrorAlert } from "/src/components/Error/Error";
 import SelectField from "/src/components/SelectField/SelectField";
 import TextField from "/src/components/TextField/TextField";
 import TimeRangeField from "/src/components/TimeRangeField/TimeRangeField";
+import ToggleField from "/src/components/ToggleField/ToggleField";
 import { createEvent, EventResponse } from "/src/app/actions";
 import { useTranslation } from "/src/i18n/client";
 import timezones from "/src/res/timezones.json";
 import useRecentsStore from "/src/stores/recentsStore";
+import { serializeSpecificDay, serializeTime, serializeWeekdayDay } from "/src/utils";
 
 import EventInfo from "./components/EventInfo/EventInfo";
 import styles from "./CreateForm.module.scss";
 
+type FormEventType = "time" | "day";
+
 interface Fields {
   name: string;
+  eventType: FormEventType;
   /** As `YYYY-MM-DD` or `d` */
   dates: string[];
   time: {
@@ -33,6 +38,7 @@ interface Fields {
 
 const defaultValues: Fields = {
   name: "",
+  eventType: "time",
   dates: [],
   time: { start: 9, end: 17 },
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -44,7 +50,8 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
 
   const addRecent = useRecentsStore((state) => state.addRecent);
 
-  const { register, handleSubmit, control } = useForm({ defaultValues });
+  const { register, handleSubmit, control, watch, setValue } = useForm({ defaultValues });
+  const eventType = watch("eventType");
 
   const [isLoading, setIsLoading] = useState(false);
   const [createdEvent, setCreatedEvent] = useState<EventResponse>();
@@ -54,50 +61,61 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
     setIsLoading(true);
     setError(undefined);
 
-    const { name, dates, time, timezone } = values;
+    const { name, dates, time, timezone, eventType } = values;
 
     try {
       if (dates.length === 0) {
         return setError(t("form.errors.no_dates"));
       }
-      if (time.start === time.end) {
-        return setError(t("form.errors.same_times"));
-      }
 
       // If format is `YYYY-MM-DD` or `d`
       const isSpecificDates = dates[0].length !== 1;
 
-      const times = dates.flatMap((dateStr) => {
-        const date = isSpecificDates
-          ? Temporal.PlainDate.from(dateStr)
-          : Temporal.Now.plainDateISO().add({
-              days: Number(dateStr) - Temporal.Now.plainDateISO().dayOfWeek,
+      let times: string[];
+      if (eventType === "day") {
+        // Day-mode: emit one bare-day string per selected date.
+        times = dates.map((dateStr) =>
+          isSpecificDates
+            ? serializeSpecificDay(Temporal.PlainDate.from(dateStr))
+            : serializeWeekdayDay(Number(dateStr)),
+        );
+      } else {
+        if (time.start === time.end) {
+          return setError(t("form.errors.same_times"));
+        }
+
+        times = dates.flatMap((dateStr) => {
+          const date = isSpecificDates
+            ? Temporal.PlainDate.from(dateStr)
+            : Temporal.Now.plainDateISO().add({
+                days: Number(dateStr) - Temporal.Now.plainDateISO().dayOfWeek,
+              });
+
+          const hours =
+            time.start > time.end
+              ? [...range(0, time.end - 1), ...range(time.start, 23)]
+              : range(time.start, time.end - 1);
+
+          return hours.map((hour) => {
+            const dateTime = date.toZonedDateTime({
+              timeZone: timezone,
+              plainTime: Temporal.PlainTime.from({ hour }),
             });
-
-        const hours =
-          time.start > time.end
-            ? [...range(0, time.end - 1), ...range(time.start, 23)]
-            : range(time.start, time.end - 1);
-
-        return hours.map((hour) => {
-          const dateTime = date
-            .toZonedDateTime({ timeZone: timezone, plainTime: Temporal.PlainTime.from({ hour }) })
-            .withTimeZone("UTC");
-          if (isSpecificDates) {
-            // Format as `HHmm-DDMMYYYY`
-            return `${dateTime.hour.toString().padStart(2, "0")}${dateTime.minute.toString().padStart(2, "0")}-${dateTime.day.toString().padStart(2, "0")}${dateTime.month.toString().padStart(2, "0")}${dateTime.year.toString().padStart(4, "0")}`;
-          } else {
-            // Format as `HHmm-d`
-            return `${dateTime.hour.toString().padStart(2, "0")}${dateTime.minute.toString().padStart(2, "0")}-${String(dateTime.dayOfWeek === 7 ? 0 : dateTime.dayOfWeek)}`;
-          }
+            return serializeTime(dateTime, isSpecificDates);
+          });
         });
-      });
+      }
 
       if (times.length === 0) {
         return setError(t("form.errors.no_time"));
       }
 
-      const result = await createEvent({ name, times, timezone });
+      const result = await createEvent({
+        name,
+        times,
+        timezone,
+        event_type: eventType === "day" ? "DayBased" : "TimeBased",
+      });
 
       if (!result.ok) {
         return setError(t("form.errors.unknown"));
@@ -140,6 +158,18 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
         {...register("name")}
       />
 
+      <ToggleField
+        label={t("form.event_type.label")}
+        description={t("form.event_type.sublabel")}
+        name="eventType"
+        value={eventType}
+        onChange={(v) => setValue("eventType", v as FormEventType)}
+        options={{
+          time: t("form.event_type.options.time"),
+          day: t("form.event_type.options.day"),
+        }}
+      />
+
       <CalendarField
         label={t("form.dates.label")}
         description={t("form.dates.sublabel")}
@@ -147,12 +177,14 @@ const CreateForm = ({ noRedirect }: { noRedirect?: boolean }) => {
         name="dates"
       />
 
-      <TimeRangeField
-        label={t("form.times.label")}
-        description={t("form.times.sublabel")}
-        control={control}
-        name="time"
-      />
+      {eventType === "time" && (
+        <TimeRangeField
+          label={t("form.times.label")}
+          description={t("form.times.sublabel")}
+          control={control}
+          name="time"
+        />
+      )}
 
       <SelectField
         label={t("form.timezone.label")}

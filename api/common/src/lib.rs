@@ -1,6 +1,7 @@
 use ambassador::delegatable_trait;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use utoipa::ToSchema;
 
 #[derive(Debug, thiserror::Error)]
 pub enum AdaptorError {
@@ -49,6 +50,13 @@ pub struct Stats {
     pub person_count: i64,
 }
 
+#[derive(Clone, serde::Serialize, serde::Deserialize, Default, ToSchema)]
+pub enum EventType {
+    #[default]
+    TimeBased,
+    DayBased,
+}
+
 #[derive(Clone)]
 pub struct Event {
     pub id: String,
@@ -57,6 +65,7 @@ pub struct Event {
     pub visited_at: DateTime<Utc>,
     pub times: Vec<String>,
     pub timezone: String,
+    pub event_type: EventType,
 }
 
 #[derive(Clone)]

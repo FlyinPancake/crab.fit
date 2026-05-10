@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { Trans } from "react-i18next/TransWithoutContext";
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { Temporal } from "@js-temporal/polyfill";
 
 import Content from "/src/components/Content/Content";
@@ -20,19 +19,19 @@ interface PageProps {
 export const generateMetadata = async (props: PageProps): Promise<Metadata> => {
   const params = await props.params;
   const eventResponse = await getEvent(params.id);
-  if (!eventResponse.ok) notFound();
-  const event = eventResponse.data;
+
   const { t } = await useTranslation("event");
 
   return {
-    title: event?.name ?? t("error.title"),
+    title: eventResponse.ok ? eventResponse.data.name : t("error.title"),
   };
 };
 
 const Page = async (props: PageProps) => {
   const params = await props.params;
   const eventResponse = await getEvent(params.id);
-  if (!eventResponse.ok) notFound();
+
+  if (!eventResponse.ok) return null;
   const event = eventResponse.data;
 
   const { t, i18n } = await useTranslation(["common", "event"]);
