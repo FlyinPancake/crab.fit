@@ -217,7 +217,7 @@ impl SqlAdaptor {
             .await
             .expect("Failed to connect to SQL database");
 
-        tracing::info!(connection_string = ?database_url, "Connected to database");
+        tracing::info!("Connected to database");
 
         // Setup tables
         Migrator::up(&db, None)
