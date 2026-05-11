@@ -14,14 +14,12 @@ COPY api/ .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
-ARG ADAPTOR
-ENV ADAPTOR=${ADAPTOR}
 
 COPY --from=planner /app/recipe.json recipe.json
 # Notice that we are specifying the --target flag!
-RUN cargo chef cook --release --target $(uname -m)-unknown-linux-musl --features ${ADAPTOR} --recipe-path recipe.json
+RUN cargo chef cook --release --target $(uname -m)-unknown-linux-musl --recipe-path recipe.json
 COPY api/ .
-RUN cargo build --release --target $(uname -m)-unknown-linux-musl --features ${ADAPTOR} && \
+RUN cargo build --release --target $(uname -m)-unknown-linux-musl && \
     cp target/$(uname -m)-unknown-linux-musl/release/crabfit-api /usr/local/bin/crabfit-api
 
 # Frontend
