@@ -5,8 +5,6 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
-      args:
-        ADAPTOR: sql-adaptor
     ports:
       - "8080:8080"
       # Not needed, just in case to access the API directly
