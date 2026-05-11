@@ -38,6 +38,11 @@ utoipa-swagger-ui = { version = "9.0.2", features = ["axum", "debug-embed"] }
 axum-extra = { version = "0.12.6", features = ["typed-header"] }
 utoipa-axum = "0.2.0"
 ambassador = "0.5"
+figment2 = "0.11.5"
+serde-inline-default = "1.0.1"
+garde = { version = "0.22.1", features = ["derive", "serde"] }
+thiserror = "2.0.18"
+color-eyre = "0.6.5"
 
 
 [features]
