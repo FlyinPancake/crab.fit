@@ -1,12 +1,13 @@
 # AIO Dockerfile
 
-ARG RUST_VERSION=1.95.0-stable
+ARG RUST_VERSION=1.95.0
 ARG NODE_VERSION=20
 
-FROM clux/muslrust:${RUST_VERSION} AS chef
+FROM rust:${RUST_VERSION}-alpine AS chef
 
 USER root
-RUN cargo install --locked cargo-chef
+COPY api/rust-toolchain.toml .
+RUN cargo install --locked cargo-chef && apk add --no-cache protoc curl
 WORKDIR /app
 
 FROM chef AS planner
