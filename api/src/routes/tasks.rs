@@ -28,15 +28,20 @@ pub async fn cleanup(
     headers: HeaderMap,
 ) -> Result<(), ApiError> {
     // Check cron key
-    let cron_key_header: String = headers
+    let cron_key_header: Option<String> = headers
         .get("X-Cron-Key")
-        .map(|k| k.to_str().unwrap_or_default().into())
-        .unwrap_or_default();
+        .map(|k| k.to_str().unwrap_or_default().into());
 
-    if let Some(env_key) = config.cron_key.as_ref()
-        && env_key != &cron_key_header
-    {
-        return Err(ApiError::NotAuthorized);
+    if let Some(env_key) = config.cron_key.as_ref() {
+        match cron_key_header {
+            Some(cron_key_header) if env_key != &cron_key_header => {
+                return Err(ApiError::NotAuthorized);
+            }
+            None => {
+                return Err(ApiError::NotAuthorized);
+            }
+            _ => {}
+        }
     }
 
     info!("Running cleanup task");
