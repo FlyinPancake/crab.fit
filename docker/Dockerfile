@@ -1,12 +1,13 @@
 # AIO Dockerfile
 
-ARG RUST_VERSION=1.95.0-stable
+ARG RUST_VERSION=1.95.0
 ARG NODE_VERSION=20
 
-FROM clux/muslrust:${RUST_VERSION} AS chef
+FROM rust:${RUST_VERSION}-alpine AS chef
 
 USER root
-RUN cargo install --locked cargo-chef
+COPY api/rust-toolchain.toml .
+RUN cargo install --locked cargo-chef && apk add --no-cache protoc curl
 WORKDIR /app
 
 FROM chef AS planner
@@ -14,14 +15,12 @@ COPY api/ .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
-ARG ADAPTOR
-ENV ADAPTOR=${ADAPTOR}
 
 COPY --from=planner /app/recipe.json recipe.json
 # Notice that we are specifying the --target flag!
-RUN cargo chef cook --release --target $(uname -m)-unknown-linux-musl --features ${ADAPTOR} --recipe-path recipe.json
+RUN cargo chef cook --release --target $(uname -m)-unknown-linux-musl --recipe-path recipe.json
 COPY api/ .
-RUN cargo build --release --target $(uname -m)-unknown-linux-musl --features ${ADAPTOR} && \
+RUN cargo build --release --target $(uname -m)-unknown-linux-musl && \
     cp target/$(uname -m)-unknown-linux-musl/release/crabfit-api /usr/local/bin/crabfit-api
 
 # Frontend
