@@ -63,8 +63,8 @@ jobs:
           file: docker/Dockerfile
           platforms: ${{ matrix.platform }}
           outputs: type=image,name=${{ steps.image.outputs.name }},push-by-digest=true,name-canonical=true,push=true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=crabfit-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=crabfit-${{ matrix.arch }}
 
       - name: Export digest
         run: |
