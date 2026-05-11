@@ -1,4 +1,4 @@
-use std::{env, net::SocketAddr, sync::Arc};
+use std::{net::SocketAddr, sync::Arc};
 
 use axum::{
     Extension,
@@ -9,6 +9,7 @@ use axum::{
     serve,
 };
 
+use color_eyre::eyre::ContextCompat;
 use tokio::net::TcpListener;
 use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
 use tower_http::{cors::CorsLayer, trace::TraceLayer};
@@ -16,10 +17,11 @@ use tracing::Level;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use crate::adaptors::{AnyAdaptor, create_adaptor};
 use crate::docs::ApiDoc;
+use crate::{adaptors::AnyAdaptor, config::Config};
 
 mod adaptors;
+mod config;
 mod docs;
 mod errors;
 mod payloads;
@@ -27,30 +29,37 @@ mod routes;
 
 pub type Router = utoipa_axum::router::OpenApiRouter<()>;
 pub type AdaptorExtension = Extension<Arc<AnyAdaptor>>;
+pub type ConfigExtension = Extension<Arc<Config>>;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();
 
     // Load env
     dotenvy::dotenv().ok();
 
-    let adaptor = create_adaptor().await;
+    let config = Config::load()?;
+
+    let adaptor: AnyAdaptor = match config.adaptor_kind {
+        config::AdaptorConfig::Memory => memory_adaptor::MemoryAdaptor::new().await.into(),
+        config::AdaptorConfig::Sql => sql_adaptor::SqlAdaptor::new(
+            &config
+                .database_url
+                .clone()
+                .context("validation should have caught this")?,
+        )
+        .await
+        .into(),
+        config::AdaptorConfig::Datastore => datastore_adaptor::DatastoreAdaptor::new().await.into(),
+    };
 
     // CORS configuration
     let cors = CorsLayer::new()
         .allow_credentials(true)
         .allow_headers([AUTHORIZATION, ACCEPT, CONTENT_TYPE])
         .allow_methods([Method::GET, Method::POST, Method::PATCH])
-        .allow_origin(
-            if cfg!(debug_assertions) {
-                "http://localhost:1234".to_owned()
-            } else {
-                env::var("FRONTEND_URL").expect("Missing FRONTEND_URL environment variable")
-            }
-            .parse::<HeaderValue>()
-            .unwrap(),
-        );
+        .allow_origin(config.frontend_url.parse::<HeaderValue>()?);
 
     // Rate limiting configuration (using tower_governor)
     // From the docs: Allows bursts with up to 20 requests and replenishes
@@ -59,7 +68,7 @@ async fn main() {
         GovernorConfigBuilder::default()
             .burst_size(20)
             .finish()
-            .unwrap(),
+            .context("failed to set up governor")?,
     );
     let rate_limit = GovernorLayer::new(governor_config);
 
@@ -72,10 +81,11 @@ async fn main() {
         )
         .layer(cors)
         .layer(Extension(Arc::new(adaptor)))
+        .layer(Extension(Arc::new(config.clone())))
         .layer(rate_limit)
         .layer(TraceLayer::new_for_http());
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = config.http_listen_addr.parse::<SocketAddr>()?;
 
     tracing::info!(
         "Crab Fit API listening at http://{} in {} mode",
@@ -87,7 +97,7 @@ async fn main() {
         }
     );
 
-    let listener = TcpListener::bind(addr).await.unwrap();
+    let listener = TcpListener::bind(addr).await?;
     serve(
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),
@@ -97,6 +107,7 @@ async fn main() {
             .await
             .expect("Failed to install Ctrl+C handler")
     })
-    .await
-    .unwrap();
+    .await?;
+
+    Ok(())
 }

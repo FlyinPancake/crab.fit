@@ -1,4 +1,4 @@
-use std::{env, error::Error};
+use std::error::Error;
 
 use async_trait::async_trait;
 use chrono::{DateTime, TimeZone, Utc};
@@ -211,24 +211,13 @@ async fn get_stats_row(db: &DatabaseConnection) -> Result<stats::ActiveModel, Ad
 }
 
 impl SqlAdaptor {
-    pub async fn new() -> Self {
-        let connection_string =
-            env::var("DATABASE_URL").expect("Expected DATABASE_URL environment variable");
-
+    pub async fn new(database_url: &str) -> Self {
         // Connect to the database
-        let db = Database::connect(&connection_string)
+        let db = Database::connect(database_url)
             .await
             .expect("Failed to connect to SQL database");
-        println!(
-            "{} Connected to database at {}",
-            match db {
-                DatabaseConnection::SqlxMySqlPoolConnection(_) => "🐬",
-                DatabaseConnection::SqlxPostgresPoolConnection(_) => "🐘",
-                DatabaseConnection::SqlxSqlitePoolConnection(_) => "🪶",
-                DatabaseConnection::Disconnected => panic!("Failed to connect to SQL database"),
-            },
-            connection_string
-        );
+
+        tracing::info!(connection_string = ?database_url, "Connected to database");
 
         // Setup tables
         Migrator::up(&db, None)

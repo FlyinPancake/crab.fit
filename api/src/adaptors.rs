@@ -1,5 +1,3 @@
-use std::env;
-
 use ambassador::Delegate;
 use chrono::{DateTime, Utc};
 use common::{Adaptor, AdaptorError, Event, Person, Stats, ambassador_impl_Adaptor};
@@ -28,17 +26,5 @@ impl From<MemoryAdaptor> for AnyAdaptor {
 impl From<DatastoreAdaptor> for AnyAdaptor {
     fn from(a: DatastoreAdaptor) -> Self {
         Self::Datastore(a)
-    }
-}
-
-pub async fn create_adaptor() -> AnyAdaptor {
-    match env::var("ADAPTOR").as_deref() {
-        Ok("sql") => sql_adaptor::SqlAdaptor::new().await.into(),
-        Ok("datastore") => datastore_adaptor::DatastoreAdaptor::new().await.into(),
-        Ok("memory") => memory_adaptor::MemoryAdaptor::new().await.into(),
-        _ => {
-            tracing::warn!("defaulting to in-memory datastore");
-            memory_adaptor::MemoryAdaptor::new().await.into()
-        }
     }
 }
